@@ -1,0 +1,76 @@
+#game-screen{
+	
+	background-color: gray;
+	height: 100%;
+	width: 100%;
+	border: 5px solid black;
+}
+
+#screen-header{
+	text-align: center;
+	color: #FF2222;
+	background-color: #111111
+}
+
+#info{
+	
+	display:flex;
+}
+
+#text-zone{
+	background-color: #c41111;
+	padding: 10px;
+	width: 50%;
+	border: 2px solid black;
+	
+	
+}
+
+#inventory{
+	
+	
+	
+	flex-wrap: wrap;
+	text-align: center;
+	background-color: #c41111;
+	padding: 10px;
+	border: 2px solid black;
+	width: 50%;
+}
+
+#slot-container{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.slot{
+	width: 32px;
+	height: 32px;
+	padding: 2px;
+	border: 2px solid black;
+	display: flex;
+
+	
+}
+
+#options{
+	display: flex;
+	padding: 10px;
+	border: 2px solid black;
+	align-items: center;
+	justify-content: center;
+}
+
+.option{
+	width: 128px;
+	height: 16px;
+	border: 1px solid red;
+	text-align: center;
+	padding: 2px;
+	margin-right: 10px;
+	background-color: #111111;
+	color: #dd3333;
+	
+	
+}
