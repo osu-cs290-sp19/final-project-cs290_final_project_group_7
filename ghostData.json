@@ -1,0 +1,12 @@
+[
+	{
+		"name": "Whilloc",
+		"stats": {
+			"hp": 100,
+			"items": [ "FoulPotion", "FoulPotion" ]
+		},
+		"aggression": 10,
+		"hospitality": 10,
+		"layer": 0
+	}
+]
