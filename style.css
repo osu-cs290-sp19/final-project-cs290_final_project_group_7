@@ -71,6 +71,12 @@
 	margin-right: 10px;
 	background-color: #111111;
 	color: #dd3333;
+	transition: 1s ease-in-out;
 	
-	
+}
+
+.option:hover{
+	background-color: #dd3333;
+	color: #111111;
+	transition: 1s ease-in-out;
 }
