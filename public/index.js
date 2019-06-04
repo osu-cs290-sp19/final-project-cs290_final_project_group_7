@@ -34,4 +34,3 @@ function effectUpdate(target) {
 		effect.duration -= 1;
 	}
 }
-

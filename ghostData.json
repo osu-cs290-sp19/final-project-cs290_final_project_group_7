@@ -1,12 +1,1 @@
-[
-	{
-		"name": "Whilloc",
-		"stats": {
-			"hp": 100,
-			"items": [ "FoulPotion", "FoulPotion" ]
-		},
-		"aggression": 10,
-		"hospitality": 10,
-		"layer": 0
-	}
-]
+[{"name":"Whilloc","stats":{"hp":100,"items":["FoulPotion","FoulPotion"]},"aggression":10,"hospitality":10,"layer":0,"_id":"5cf701aacf8e4039402d0866"}]
