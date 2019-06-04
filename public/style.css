@@ -1,3 +1,6 @@
+body{
+	background-color: #550000;
+}
 #game-screen{
 	
 	background-color: gray;
@@ -15,6 +18,20 @@
 #info{
 	
 	display:flex;
+}
+
+#encounter-container{
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	display: flex;
+}
+
+#encounter-disp{
+	border: 2px solid black;
+	height: 32px;
+	width: 32px;
+	padding: 2px;
 }
 
 #text-zone{
@@ -50,8 +67,13 @@
 	padding: 2px;
 	border: 2px solid black;
 	display: flex;
+	transition: 1s ease-in-out;
+	background-color: #777777;
+}
 
-	
+.slot:hover{
+	transition: 1s ease-in-out;
+	border: 2px solid #660000;
 }
 
 #options{
