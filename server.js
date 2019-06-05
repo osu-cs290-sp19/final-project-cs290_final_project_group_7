@@ -11,7 +11,7 @@ var port = process.env.PORT || 3000;
 var items = require('./itemData'); 
 var ghosts = require('./ghostData');
 
-var mongoHost = process.env.MONGO_HOST || classmongo.engr.oregonstate.edu;
+var mongoHost = process.env.MONGO_HOST || "classmongo.engr.oregonstate.edu";
 var mongoPort = process.env.MONGO_PORT || 27017;
 var mongoUser = process.env.MONGO_USER || process.env.MONGO_DB_NAME || "cs290_schaeflz";
 var mongoPassword = process.env.MONGO_PASSWORD;
