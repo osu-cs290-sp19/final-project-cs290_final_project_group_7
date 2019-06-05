@@ -17,8 +17,9 @@ var mongoUser = process.env.MONGO_USER || process.env.MONGO_DB_NAME || "cs290_sc
 var mongoPassword = process.env.MONGO_PASSWORD;
 var mongoDBName = process.env.MONGO_DB_NAME || process.env.MONGO_USER || "cs290_schaeflz";
 
-var url;/* = 'mongodb://' + mongoUser + ':' + mongoPassword + '@' + mongoHost + ':' + mongoPort + '/' + mongoDBName;*/
-url = 'mongodb://cs290_schaeflz:letmeeatmymangos@classmongo.engr.oregonstate.edu:27017/cs290_schaeflz';
+var url = 'mongodb://' + mongoUser + ':' + mongoPassword + '@' + mongoHost + ':' + mongoPort + '/' + mongoDBName;
+console.log("=== URL:", url);
+// url = 'mongodb://cs290_schaeflz:letmeeatmymangos@classmongo.engr.oregonstate.edu:27017/cs290_schaeflz';
 
 /*
 app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
