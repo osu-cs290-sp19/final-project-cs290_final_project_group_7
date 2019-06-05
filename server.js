@@ -11,13 +11,14 @@ var port = process.env.PORT || 3000;
 var items = require('./itemData'); 
 var ghosts = require('./ghostData');
 
-var mongoHost = process.env.MONGO_HOST;
+var mongoHost = process.env.MONGO_HOST || "classmongo.engr.oregonstate.edu";
 var mongoPort = process.env.MONGO_PORT || 27017;
-var mongoUser = process.env.MONGO_USER;
+var mongoUser = process.env.MONGO_USER || process.env.MONGO_DB_NAME || "cs290_schaeflz";
 var mongoPassword = process.env.MONGO_PASSWORD;
-var mongoDBName = process.env.MONGO_DB_NAME;
+var mongoDBName = process.env.MONGO_DB_NAME || process.env.MONGO_USER || "cs290_schaeflz";
 
-var url;/* = 'mongodb://' + mongoUser + ':' + mongoPassword + '@' + mongoHost + ':' + mongoPort + '/' + mongoDBName;*/
+var url = 'mongodb://' + mongoUser + ':' + mongoPassword + '@' + mongoHost + ':' + mongoPort + '/' + mongoDBName;
+console.log("=== URL:", url);
 
 /*
 app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
