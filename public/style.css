@@ -1,6 +1,10 @@
 body{
 	background-color: #550000;
 }
+img{
+	height: 32px;
+	width: 32px;
+}
 #game-screen{
 	
 	background-color: gray;
@@ -15,6 +19,46 @@ body{
 	background-color: #111111
 }
 
+#health{
+	background-color: #551111;
+
+	display: flex;
+}
+
+
+
+#enm-health{
+	width: 50%;
+	display: flex;
+	border: 2px solid black;
+	flex-wrap: wrap;
+	
+}
+#pla-health{
+	width: 50%;
+	display: flex;
+	border: 2px solid black;
+	flex-wrap: wrap;
+	
+}
+
+.heart{
+	height: 16px;
+	width: 16px;
+	border: none;
+	
+	margin-bottom: 3px;
+	display:
+}
+
+#enm-health .heart{
+	float: left;
+}
+
+#pla-health .heart{
+	float: right;
+}
+
 #info{
 	
 	display:flex;
@@ -25,14 +69,25 @@ body{
 	justify-content: center;
 	text-align: center;
 	display: flex;
+	background-image: url("images/back.png");
+	background-color: #551111;
 }
 
 #encounter-disp{
 	border: 2px solid black;
-	height: 32px;
-	width: 32px;
+	height: 128px;
+	width: 128px;
 	padding: 2px;
+	background-color: #551111;
 }
+
+#encounter-disp img{
+	
+	height: 128px;
+	width: 128px;
+	
+}
+
 
 #text-zone{
 	background-color: #c41111;
@@ -50,7 +105,7 @@ body{
 	flex-wrap: wrap;
 	text-align: center;
 	background-color: #c41111;
-	padding: 10px;
+	padding: 20px;
 	border: 2px solid black;
 	width: 50%;
 }
@@ -69,11 +124,33 @@ body{
 	display: flex;
 	transition: 1s ease-in-out;
 	background-color: #777777;
+	
 }
 
 .slot:hover{
 	transition: 1s ease-in-out;
 	border: 2px solid #660000;
+}
+
+.tooltip{
+	visibility:hidden;
+	position: absolute;
+	border: 2px solid black;
+	z-index: 1;
+	float: right;
+	padding: 1px;
+
+
+	
+	background-color: #777777;
+}
+.slot:hover .tooltip {
+	visibility:visible;
+	box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	border: 2px solid black;
+	display: block;
+	margin-left: 34px;
+	
 }
 
 #options{
