@@ -92,6 +92,7 @@ function effectUpdate(target) {
 		
 		effect.duration -= 1;
 	}
+
 }
 
 
@@ -229,4 +230,5 @@ setOptions(currentEncounter.social[currentPage].options);
 
 setArea({name : "magma_deamon"});
 setHearts(0, 9);
+
 
