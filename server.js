@@ -40,68 +40,85 @@ MongoClient.connect(url, function(err, client) {
 	});
 
 	syncWithDB();
-	getCollections();
+	//getCollections();
 	displayDBData();
 	console.log(db.collection('encData').find());
 });
 
 function getGhost(req, res, next) {
-	var area = req.params.area >= 0 ? (req.params.area <= 4 ? 4 : req.params.area) : 0;
-	var ghostGot;
-	var potentialGhosts = [];
+	if (req.params.area == 'all'){
+		res.status(200).send(JSON.stringify(ghost));
+	} else {
+		console.log("area in:", req.params.area);
+		var area = req.params.area >= 0 ? (req.params.area >= 4 ? 4 : req.params.area) : 0;
+		console.log("effective area:", req.params.area);
+		var ghostGot;
+		var potentialGhosts = [];
 
-	for (var i in ghost) {
-		if (ghosts[i].locale == area) {
-			potentialGhosts.push(ghosts[i]);
+		for (var i in ghost) {
+			if (ghosts[i].locale == area) {
+				potentialGhosts.push(ghosts[i]);
+			}
 		}
+		if (potentialGhosts.length > 0) ghostGot = ghosts[randInt(0, potentialGhosts.length - 1)];
+		if (ghostGot)
+			res.status(200).send(JSON.stringify(ghostGot));
+		else
+			res.status(500).send("No ghost found for this area.");
 	}
-	if (potentialGhosts.length > 0) ghostGot = ghosts[randInt(0, potentialGhosts.length - 1)];
-	if (ghostGot)
-		res.status(200).send(JSON.stringify(ghostGot));
-	else
-		res.status(500).send("No ghost found for this area.");
 }
 
 function getItem(req, res, next) {
-	console.log("getting item...");
-	var area = req.params.area >= 0 ? (req.params.area <= 4 ? 4 : req.params.area) : 0; 
-	var itemGot;
-	var totalWeight = 0;
-	for (i in Object.keys(items)) {
-		totalWeight+= items.i.weight[req.params.area];
-	}
-	var point = randInt(0, totalWeight);
-	for (i in Objects.keys(items)) {
-		if (point - items.i.weight[req.params.area] <= 0) {
-			itemGot = i;
-		} else {
-			point -= items.i.weight[req.params.area];
+	if(req.params.area == 'all') {
+		res.status(200).send(JSON.stringify(items));
+	} else {
+		console.log("getting item...");
+		console.log("area in:", req.params.area);
+		var area = req.params.area >= 0 ? (req.params.area >= 4 ? 4 : req.params.area) : 0;
+		console.log("effective area:", req.params.area);
+		var itemGot;
+		var totalWeight = 0;
+		for (i in items) {
+			totalWeight += items[i].weight[area];
+			console.log("weight: " + totalWeight, "item added: " + items[i].name);
 		}
+		var point = randInt(0, totalWeight);
+		for (i in Object.keys(items)) {
+			if (point - items[i].weight[area] <= 0) {
+				itemGot = items[i];
+			} else {
+				point -= items[i].weight[area];
+			}
+		}
+		if (itemGot){
+			console.log(itemGot);
+			res.status(200).send(JSON.stringify(itemGot));
+		}
+			
+		else 
+			res.status(500).send("Item selection was unsuccessful.");
 	}
-	if (itemGot){
-		console.log(itemGot);
-		res.status(200).send(JSON.stringify(itemGot));
-	}
-		
-	else 
-		res.status(500).send("Item selection was unsuccessful.");
 }
 
 function getEnc(req, res, next) {
-	var area = req.params.area >= 0 ? (req.params.area <= 4 ? 4 : req.params.area) : 0;
-	var encGot;
-	var potentialEncs = [];
+	if (req.params.area == 'all') {
+		res.status(200).send(JSON.stringify(encs));
+	} else {
+		var area = req.params.area >= 0 ? (req.params.area <= 4 ? 4 : req.params.area) : 0;
+		var encGot;
+		var potentialEncs = [];
 
-	for (var i in encs) {
-		if (encs[i].areaAvail[area]) {
-			potentialEncs.push(encs[i]);
+		for (var i in encs) {
+			if (encs[i].areaAvail[area]) {
+				potentialEncs.push(encs[i]);
+			}
 		}
+		if (potentialEncs.length > 0) encGot = encs[randInt(0, potentialEncs.length - 1)];
+		if (encGot)
+			res.status(200).send(JSON.stringify(encGot));
+		else
+			res.status(500).send("No ency found for this area.");
 	}
-	if (potentialEncs.length > 0) encGot = encs[randInt(0, potentialEncs.length - 1)];
-	if (encGot)
-		res.status(200).send(JSON.stringify(encGot));
-	else
-		res.status(500).send("No ency found for this area.");
 }
 
 function makeNewGhost(req, res, next) {
@@ -240,37 +257,14 @@ app.get('*', function(res, req,next) {
 	next();
 });
 
-app.get('app/ghost&locale=:area', getGhost);
+app.get('/app/ghost&locale=:area', getGhost);
 
 //hey, uh, gimme all da items, not one, thx
-app.get('/app/item/:area', function(req, res, next) {
-	console.log("getting item...");
-	var area = req.params.area >= 0 ? (req.params.area <= 4 ? 4 : req.params.area) : 0; 
-	var itemGot;
-	var totalWeight = 0;
-	for (i in Object.keys(items)) {
-		totalWeight+= items.i.weight[req.params.area];
-	}
-	var point = randInt(0, totalWeight);
-	for (i in Objects.keys(items)) {
-		if (point - items.i.weight[req.params.area] <= 0) {
-			itemGot = i;
-		} else {
-			point -= items.i.weight[req.params.area];
-		}
-	}
-	if (itemGot){
-		console.log(itemGot);
-		res.status(200).send(JSON.stringify(itemGot));
-	}
-		
-	else 
-		res.status(500).send("Item selection was unsuccessful.");
-});
+app.get('/app/item/:area', getItem);
 
-app.get('app/enc&locale=:area', getEnc);
+app.get('/app/enc&locale=:area', getEnc);
 
-app.post('app/ghost&locale=:area', makeNewGhost);
+app.post('/app/ghost&locale=:area', makeNewGhost);
 
 app.use(express.static('public'));
 
