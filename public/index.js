@@ -3,7 +3,8 @@ var pla = {
 	hp: 6,
 	maxHp: 6,
 	inventory: [],
-	statuses: {}
+	statuses: {},
+	textures: [1,1]
 };
 
 var maxHealth = 82; //Screen limitation
@@ -253,6 +254,7 @@ var selectedItem = 0;
 function itemClick(event){
 	var items = document.getElementsByClassName("it");
 	var hit = event.target;
+	selectedItem = null;
 	for (var i = 0; i < items.length; i++){
 		console.log(items[i]);
 		items[i].parentNode.parentNode.classList.remove("selected");
@@ -280,5 +282,84 @@ setOptions(currentEncounter.social[currentPage].options);
 
 setArea({name : "magma_deamon"});
 setHearts(0, 9);
+
+
+//-----------------------Char Creation-------------------------------\
+
+var TEXTURE_COUNT = 7;
+
+var hairL = document.getElementById("hair-button-l");
+var hairR = document.getElementById("hair-button-r");
+
+var cloakL = document.getElementById("cloak-button-l");
+var cloakR = document.getElementById("cloak-button-r");
+
+var charImage = document.getElementById("character-image");
+
+function updateCharRender(){
+	charImage.innerHTML = "<img src = \"images/chars/cloaks/cloak" + String(pla.textures[1]) + ".png\" class=\"layer1\"><img src = \"images/chars/heads/head" + String(pla.textures[0]) + ".png\" class=\"layer2\">";
+}
+
+hairL.addEventListener('click', function(){
+	pla.textures[0] += 1;
+	if (pla.textures[0] > TEXTURE_COUNT){
+		pla.textures[0] -= TEXTURE_COUNT;
+	}
+	updateCharRender();
+});
+
+cloakL.addEventListener('click', function(){
+	pla.textures[1] += 1;
+	if (pla.textures[1] > TEXTURE_COUNT){
+		pla.textures[1] -= TEXTURE_COUNT;
+	}
+	updateCharRender();
+});
+
+hairR.addEventListener('click', function(){
+	pla.textures[0] -= 1;
+	if (pla.textures[0] < 1){
+		pla.textures[0] += TEXTURE_COUNT;
+	}
+	updateCharRender();
+});
+
+cloakR.addEventListener('click', function(){
+	pla.textures[1] -= 1;
+	if (pla.textures[1] < 1){
+		pla.textures[1] += TEXTURE_COUNT;
+	}
+	updateCharRender();
+});
+
+var beginButton = document.getElementById("begin-button");
+var gameScreen = document.getElementById("game-screen");
+var charScreen = document.getElementById("character-creation");
+
+
+function fadeOutEffect() {
+    var fadeTarget = charScreen;
+    var fadeEffect = setInterval(function () {
+        if (!fadeTarget.style.opacity) {
+            fadeTarget.style.opacity = 1;
+        }
+        if (fadeTarget.style.opacity > 0) {
+            fadeTarget.style.opacity -= 0.001;
+        } else {
+            clearInterval(fadeEffect);
+			charScreen.classList.add("hidden");
+        }
+    }, 1);
+}
+
+
+beginButton.addEventListener('click', function(){
+	
+	gameScreen.classList.remove("hidden");
+	
+	fadeOutEffect()
+});
+
+
 
 
