@@ -27,15 +27,6 @@ app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
 app.set('view engine', 'handlebars');
 */
 app.use(bodyParser.json());
-app.use(express.static('public'));
-
-app.get('app/ghost&locale=:area', getGhost);
-
-app.get('app/item&locale=:area', getItem);
-
-app.get('app/enc&locale=:area', getEnc);
-
-app.post('app/ghost&locale=:area', makeNewGhost);
 
 var db;
 MongoClient.connect(url, function(err, client) {
@@ -72,6 +63,7 @@ function getGhost(req, res, next) {
 }
 
 function getItem(req, res, next) {
+	console.log("getting item...");
 	var area = req.params.area >= 0 ? (req.params.area <= 4 ? 4 : req.params.area) : 0; 
 	var itemGot;
 	var totalWeight = 0;
@@ -86,8 +78,11 @@ function getItem(req, res, next) {
 			point -= items.i.weight[req.params.area];
 		}
 	}
-	if (itemGot)
+	if (itemGot){
+		console.log(itemGot);
 		res.status(200).send(JSON.stringify(itemGot));
+	}
+		
 	else 
 		res.status(500).send("Item selection was unsuccessful.");
 }
@@ -238,3 +233,49 @@ function encSync() {
 		for (var e in temp) encs.push(temp[e]);
 	});
 }
+
+app.get('*', function(res, req,next) {
+	console.log("got a request!");
+	console.log(req.body, req.params);
+	next();
+});
+
+app.get('app/ghost&locale=:area', getGhost);
+
+//hey, uh, gimme all da items, not one, thx
+app.get('/app/item/:area', function(req, res, next) {
+	console.log("getting item...");
+	var area = req.params.area >= 0 ? (req.params.area <= 4 ? 4 : req.params.area) : 0; 
+	var itemGot;
+	var totalWeight = 0;
+	for (i in Object.keys(items)) {
+		totalWeight+= items.i.weight[req.params.area];
+	}
+	var point = randInt(0, totalWeight);
+	for (i in Objects.keys(items)) {
+		if (point - items.i.weight[req.params.area] <= 0) {
+			itemGot = i;
+		} else {
+			point -= items.i.weight[req.params.area];
+		}
+	}
+	if (itemGot){
+		console.log(itemGot);
+		res.status(200).send(JSON.stringify(itemGot));
+	}
+		
+	else 
+		res.status(500).send("Item selection was unsuccessful.");
+});
+
+app.get('app/enc&locale=:area', getEnc);
+
+app.post('app/ghost&locale=:area', makeNewGhost);
+
+app.use(express.static('public'));
+
+
+app.get('*', function(req,res) {
+	console.log("got a bad request here." , req.url);
+	res.status(404).send("whoops");
+});

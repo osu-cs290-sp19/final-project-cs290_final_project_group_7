@@ -1,11 +1,56 @@
 
+var items = [];
+
+var req = new XMLHttpRequest();
+req.open('GET', "/app/item/1");
+req.addEventListener('load', function(event){
+	console.log(event.target.response);
+	if (event.target.status === 200){
+		items = JSON.parse(event.target.response);
+		console.log(items);
+	} else {
+		console.log(event.target);
+	}
+});
+
+req.send("GIMME");
+
+
+
+
+
+function random(min, max) {
+  return (Math.random() * (max - min)) + min;
+}
+
 var pla = {
 	hp: 6,
 	maxHp: 6,
 	inventory: [],
 	statuses: {},
-	textures: [1,1]
+	textures: [1,1],
+	pos: [5, 5]
 };
+
+var obol = {
+	"tex" : "obol", 
+	"name" : "obol",
+	"desc" : "An really old coin. Probably useful somewhere...",
+	"count" : 1,
+	"target" : "enemy",
+	"damage" : "1-2",
+	
+}
+
+var items = [obol];
+function getItemByName(name){
+	for (var i in items){
+		if (items[i].name === name){
+			return items[i];
+		}
+	}
+	return null;
+}
 
 var maxHealth = 82; //Screen limitation
 
@@ -14,35 +59,125 @@ var baseOptions = ["Travel", "Scrounge", "Rest", "Use Item"];
 var travelOptions = ["North", "East", "South", "West", "Back"];
 
 var testEncounter = {
+	name: "yellow imp",
+	items: [],
+	health: 10,
 	social: {
 		"0": {
 			text: "HELLO THERE!",
-			onStart: {
-				"name" : "none",
-				"args" : []
-			},
-			options: ["1", "2"],
+			
+			options: ["Buy foul potion for 3 obals", "2"],
 			optionRes: ["1", "2"]
 		},
 		"1": {
-			text: "HELLO?",
-			options: ["0", "2"],
+			text: "Pleased to be doing busness with you!",
+			options: ["I'll take another", "Bye!"],
+			onStart: {
+				"name" : "itemCheck",
+				"args" : ["obol", 3, {"name":"gainItem", "args" : ["foul potion", 1]}, {"name":"setPage", "args" : ["3"]}]
+			},
 			optionRes: ["0", "2"]
 		},
 		"2": {
 			text: "Goodbye!",
+			onStart: {
+				"name" : "endEncounter"
+			
+			},
 			options: ["0", "1"],
 			optionRes: ["0", "1"]
+		},
+		
+		"3": {
+			text: "HEY!  You don't have enough obols!",
+			options: ["oh"],
+			optionRes: ["0"]
 		}
+		
 		
 	}
 	
+	
 };
 
+var world= {
+	"y = 0.5*x -2" : "chasm",
+	"0,1" : "bridge",
+	"5,2,3" : "forest"
+	
+};
+
+function genLine(enc){
+	var line = "y = ";
+	var m = 0;
+	var b = random(-5, 25);
+	if (b > 25/2){
+		m = random(-2, 0);
+	} else {
+		m = random(0, 2);
+	}
+	
+	var bridgeX = Math.floor(random(0, 25));
+	var bridgeY = m*bridgeX + b;
+	world[bridgeX+ "," + bridgeY] = "bridge";
+	
+	line += m + "*x " + b; 
+	world[line] = enc;
+}
+
+function genWorld(defaul){
+	world = {};
+	world["default"] = defaul;
+	genLine("chasm");
+	genLine("river");
+	var forest = "";
+	forest += Math.floor(random(5, 20)) + ",";
+	forest += Math.floor(random(5, 20)) + ",";
+	forest += Math.floor(random(3, 8));
+	world[forest] = "forest";
+	var stairs = Math.floor(random(1, 24)) + "," + Math.floor(random(1, 24)) + "";
+	
+	
+}
+
+function getEnc(){
+	var poses = world.keys();
+	for (var i in poses){
+		if (poses[i].includes("y")) { // line
+			var eq = poses[i].split(" "); //split equation
+			var m = eq[2].split("*")[0]; //get m
+			var b = eq[3]; //get b
+			if (Math.floor(m * pla.pos[0]) + b === pla.pos[1]){ //check it
+				return world[poses[i]];
+			}
+		} else {
+			var s = poses[i].split(",");
+			if (s.length === 3){
+				if (Math.sqrt(Math.pow(pla.pos[0] - s[0], 2) + Math.pow(pla.pos[1] - s[1], 2)) <= s[2]){ //circle
+					return world[poses[i]]
+				}
+			} else if (s.length === 2){
+				if (s[0] == pla.pos[0] && s[1] == pla.pos[1] ){ //normal x,y
+					return world[poses[i]];
+				}
+			} else if (pla.pos[0] === 0 || pla.pos[0] === 25 || pla.pos[1] === 0 || pla.pos[1] === 25){
+				return "edge";
+				
+			} else {
+				return world["default"];
+			}
+		}
+	}
+	
+}
 
 
 var currentEncounter = testEncounter;
 var currentPage = "0";
+var currentArea = {
+	"name":"crag"
+	
+};
 
 
 var textBox = document.getElementById("text-zone");
@@ -123,10 +258,9 @@ function setHearts(isPla, amt){
 	box.innerHTML = html;
 }
 
-function setArea(a){
+function setEncounterImage(a){
 	var encounterBox = document.getElementById("encounter-disp");
-	console.log(encounterBox);
-	encounterBox.innerHTML = "<img src=\"images/"+ a.name + ".png\">";
+	encounterBox.innerHTML = "<img src=\"images/"+ a + ".png\">";
 	
 }
 
@@ -183,19 +317,49 @@ function setOptions(options){
 	reOps.innerHTML = op;
 }
 
-
-
-function runOnPage(command){
-	if (command.name === "damagePlayer"){
-		pla.hp -= command.args[0]
+function hasItem(item){
+	for (var i =0; i < pla.inventory.length; i++){
+		
+		if (pla.inventory[i].name === item){
+			return i;
+		}
 	}
-	
+	return -1;
 }
 
 function endEncounter(){
 	currentEncounter = null;
 	setOptions(baseOptions);
+	setEncounterImage("areas/" + currentArea.name);
 }
+
+function runOnPage(command){
+	if (command.name === "damagePlayer"){
+		pla.hp -= command.args[0]
+	}
+	if (command.name === "itemCheck"){
+		var idx = hasItem(command.args[0])
+		console.log(pla.inventory[idx].count);
+		console.log(command.args[1]);
+		if (idx >= 0 && pla.inventory[idx].count >= command.args[1]){
+			console.log("EYSSSSSSSSSSSSSSSS");
+			command = command.args[2];
+		} else {
+			command = command.args[3];
+		}
+	}
+	if (command.name === "getItem"){
+		getItem(getItemByName(command.args[0]));
+	}
+	if (command.name === "setPage"){
+		currentPage = command.args[0];
+	}
+	if (command.name === "endEncounter"){
+		endEncounter();
+	}
+}
+
+
 
 function optionClick(event){
 	var hit = event.target;
@@ -209,13 +373,14 @@ function optionClick(event){
 				//update page
 				currentPage = page.optionRes[choice];
 				//run on start
-				if (currentEncounter.social[currentPage].onStart) runOnPage(currentEncounter.social[currentPage].onStart);
+				
 				doGameTurn();
 				//setText
 				setText(currentEncounter.social[currentPage].text)
 				//set options
 				setOptions(currentEncounter.social[currentPage].options)
 				doGameTurn();
+				if (currentEncounter.social[currentPage].onStart) runOnPage(currentEncounter.social[currentPage].onStart);
 			}
 			
 		} else if (traveling){
@@ -224,13 +389,13 @@ function optionClick(event){
 				setOptions(baseOptions)
 				
 			} else if (hit.textContent === "North"){
-				
+				pla.pos[1]++;
 			} else if (hit.textContent === "East"){
-				
+				pla.pos[0]++;
 			} else if (hit.textContent === "South"){
-				
+				pla.pos[1]--;
 			} else if (hit.textContent === "West"){
-				
+				pla.pos[1]--;
 			} 
 			
 		} else {
@@ -265,22 +430,17 @@ function itemClick(event){
 	}
 
 }
-var obol = {
-	"tex" : "obol", 
-	"desc" : "An really old coin. Probably useful somewhere...",
-	"count" : 1
-}
+
 
 getItem(obol);
-getItem(obol);
-getItem(obol);
 
+setEncounterImage("yellow_imp");
 optionBox.addEventListener('click', optionClick);
 itemBox.addEventListener('click', itemClick);
 
 setOptions(currentEncounter.social[currentPage].options);
 
-setArea({name : "magma_deamon"});
+
 setHearts(0, 9);
 
 

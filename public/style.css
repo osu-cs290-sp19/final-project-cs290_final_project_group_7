@@ -13,6 +13,7 @@ img{
 	width: 100%;
 	border: 5px solid black;
 	transition: 1s ease-in-out;
+
 }
 
 #screen-header{
@@ -180,7 +181,7 @@ img{
 
 .option{
 	width: 128px;
-	height: 16px;
+	
 	border: 1px solid red;
 	text-align: center;
 	padding: 2px;
