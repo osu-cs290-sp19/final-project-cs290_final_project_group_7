@@ -1,0 +1,38 @@
+[
+	{
+		"name": "yellow imp",
+		"items": [],
+		"health": 10,
+		"social": {
+			"0": {
+				"text": "HELLO THERE!",
+
+				"options": ["Buy foul potion for 3 obals", "2"],
+				"optionRes": ["1", "2"]
+			},
+			"1": {
+				"text": "Pleased to be doing busness with you!",
+				"options": ["I'll take another", "Bye!"],
+				"onStart": {
+				    "name" : "itemCheck",
+				    "args" : ["obol", 3, {"name":"gainItem", "args" : ["foul potion", 1]}, {"name":"setPage", "args" : ["3"]}]
+				},
+				"optionRes": ["0", "2"]
+			},
+			"2": {
+				"text": "Goodbye!",
+				"onStart": {
+				    "name" : "endEncounter"
+				},
+				"options": ["0", "1"],
+				"optionRes": ["0", "1"]
+			},
+
+			"3": {
+				"text": "HEY!  You don't have enough obols!",
+				"options": ["oh"],
+				"optionRes": ["0"]
+			}
+		}
+	}
+]

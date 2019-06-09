@@ -4,13 +4,14 @@ var exphbs = require('express-handlebars');
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var fs = require('fs');
+var bodyParser = require('body-parser');
 
 var app = express();
 var port = process.env.PORT || 3000;
 
 var items;// = require('./itemData'); 
 var ghosts;// = require('./ghostData');
-var enems = require('./enemData.json');
+var encs;// = require('./encData.json');
 
 var mongoHost = process.env.MONGO_HOST || "classmongo.engr.oregonstate.edu";
 var mongoPort = process.env.MONGO_PORT || 27017;
@@ -25,14 +26,16 @@ console.log("=== URL:", url);
 app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
 app.set('view engine', 'handlebars');
 */
-
+app.use(bodyParser.json());
 app.use(express.static('public'));
 
-app.get('app/ghost&layer=:level', getGhost);
+app.get('app/ghost&locale=:area', getGhost);
 
-app.get('app/item&layer=:level', getItem);
+app.get('app/item&locale=:area', getItem);
 
-app.get('app/enem&layer=:level', getEnem)
+app.get('app/enc&locale=:area', getEnc);
+
+app.post('app/ghost&locale=:area', makeNewGhost);
 
 var db;
 MongoClient.connect(url, function(err, client) {
@@ -45,19 +48,19 @@ MongoClient.connect(url, function(err, client) {
 	  console.log("== Server is listening on port", port);
 	});
 
-	// syncWithDB();
+	syncWithDB();
 	getCollections();
 	displayDBData();
-	console.log(db.collection('enemData').find());
+	console.log(db.collection('encData').find());
 });
 
 function getGhost(req, res, next) {
-	var level = req.params.level >= 0 ? (req.params.level <= 10 ? 10 : req.params.level) : 0;
+	var area = req.params.area >= 0 ? (req.params.area <= 4 ? 4 : req.params.area) : 0;
 	var ghostGot;
 	var potentialGhosts = [];
 
 	for (var i in ghost) {
-		if (ghosts[i].layer == level) {
+		if (ghosts[i].locale == area) {
 			potentialGhosts.push(ghosts[i]);
 		}
 	}
@@ -65,22 +68,22 @@ function getGhost(req, res, next) {
 	if (ghostGot)
 		res.status(200).send(JSON.stringify(ghostGot));
 	else
-		res.status(500).send("No ghost found for this level.");
+		res.status(500).send("No ghost found for this area.");
 }
 
 function getItem(req, res, next) {
-	var level = req.params.level >= 0 ? (req.params.level <= 10 ? 10 : req.params.level) : 0; 
+	var area = req.params.area >= 0 ? (req.params.area <= 4 ? 4 : req.params.area) : 0; 
 	var itemGot;
 	var totalWeight = 0;
 	for (i in Object.keys(items)) {
-		totalWeight+= items.i.weight[req.params.level];
+		totalWeight+= items.i.weight[req.params.area];
 	}
 	var point = randInt(0, totalWeight);
 	for (i in Objects.keys(items)) {
-		if (point - items.i.weight[req.params.level] <= 0) {
+		if (point - items.i.weight[req.params.area] <= 0) {
 			itemGot = i;
 		} else {
-			point -= items.i.weight[req.params.level];
+			point -= items.i.weight[req.params.area];
 		}
 	}
 	if (itemGot)
@@ -89,22 +92,47 @@ function getItem(req, res, next) {
 		res.status(500).send("Item selection was unsuccessful.");
 }
 
-function getEnem(req, res, next) {
-	var level = req.params.level >= 0 ? (req.params.level <= 10 ? 10 : req.params.level) : 0;
-	var enemGot;
-	var potentialEnems = [];
+function getEnc(req, res, next) {
+	var area = req.params.area >= 0 ? (req.params.area <= 4 ? 4 : req.params.area) : 0;
+	var encGot;
+	var potentialEncs = [];
 
-	for (var i in enems) {
-		if (enems[i].levelAvail[level]) {
-			potentialEnems.push(enems[i]);
+	for (var i in encs) {
+		if (encs[i].areaAvail[area]) {
+			potentialEncs.push(encs[i]);
 		}
 	}
-	if (potentialEnems.length > 0) enemGot = enems[randInt(0, potentialEnems.length - 1)];
-	if (enemGot)
-		res.status(200).send(JSON.stringify(enemGot));
+	if (potentialEncs.length > 0) encGot = encs[randInt(0, potentialEncs.length - 1)];
+	if (encGot)
+		res.status(200).send(JSON.stringify(encGot));
 	else
-		res.status(500).send("No enemy found for this level.");
+		res.status(500).send("No ency found for this area.");
 }
+
+function makeNewGhost(req, res, next) {
+	var area = req.params.area >= 0 ? (req.params.area <= 4 ? 4 : req.params.area) : 0;
+	var body = req.body;
+	if (body.name && body.hp && body.items && body.aggression && body.hospitality
+		&& body.tex1 && body.tex2){
+
+		var newGhost = {
+			"name": body.name,
+			"stats": {
+				"hp": body.hp,
+				"items": body.items
+			},
+			"aggression": body.aggression,
+			"hospitality": body.hospitality,
+			"texture": [body.tex1, body.tex2]
+		};
+
+		db.collection('ghostData').insertOne(newGhost);
+		ghostSync();
+		res.status(200).send("Success.");
+	} else {
+		res.status(400).send("Ghost could not be made, likely missing fields.");
+	}
+} 
 
 function randInt(min, max) {
 	min = Math.ceil(min);
@@ -128,7 +156,7 @@ function displayDBData() {
 		}
 	});
 
-	db.collection("enemData").find().toArray(function(err, temp) {
+	db.collection("encData").find().toArray(function(err, temp) {
 		assert.equal(err, null);
 		for (var i in temp) {
 			console.log(temp[i]);
@@ -139,7 +167,7 @@ function displayDBData() {
 function getCollections() {
 	ghosts = [];
 	items = [];
-	enems = [];
+	encs = [];
 
 	db.collection("ghostData").find().toArray(function(err, temp) {
 		assert.equal(err, null);
@@ -155,71 +183,58 @@ function getCollections() {
 		}
 	});
 	
-	db.collection("enemData").find().toArray(function(err, temp) {
+	db.collection("encData").find().toArray(function(err, temp) {
 		assert.equal(err, null);
 		for (var g in temp) {
-			enems.push(temp[g]);
+			encs.push(temp[g]);
 		}
 	});
 }
 
-function syncWithDB(){
-	//ghosts updating
+function syncWithDB(syncGhosts = true, syncItems = true, syncEncs = true) {
+	if (syncGhosts) ghostSync();
+	if (syncItems) itemSync();
+	if (syncEncs) encSync();
+}
+
+function ghostSync() {
+	ghosts = require('./ghostData');
 	for (var g in ghosts) {
-		db.collection("ghostData").deleteMany(ghosts[g]);
+		db.collection('ghostData').deleteMany({'_id': ghosts[g]._id});
+		db.collection("ghostData").insertOne(ghosts[g]);
 	}
-	var shouldUpdate = false;
-	db.collection("ghostData").find().toArray(function(err, temp) {
+	ghosts = [];
+
+	db.collection('ghostData').find().toArray(function(err, temp) {
 		assert.equal(err, null);
-		for (var g in temp) {
-			console.log(i + ": Adding new ghost from db...\n" + temp[g]);
-			ghosts.push(temp[g]);
-			shouldUpdate = true;
-		}
+		for (var g in temp) ghosts.push(temp[g]);
 	});
+}
 
-	db.collection("ghostData").insertMany(ghosts);
-
-	if (shouldUpdate) {
-		fs.writeFileSync('./ghostData.json', JSON.stringify(ghosts));
-		shouldUpdate = false;
-	}
-
-	//items updating
+function itemSync() {
+	items = require('./itemData');
 	for (var i in items) {
-		db.collection("itemData").deleteMany(items[i]);
+		db.collection('itemData').deleteMany({'texture': items[i].texture});
+		db.collection("itemData").insertOne(items[i]);
 	}
-	db.collection("itemData").find().toArray(function(err, temp) {
+	items = [];
+
+	db.collection('itemData').find().toArray(function(err, temp) {
 		assert.equal(err, null);
-		for (var i in temp) {
-			console.log(i + ": Adding new item from db...\n" + temp[i]);
-			items.push(temp[i]);
-			shouldUpdate = true;
-		}
+		for (var i in temp) items.push(temp[i]);
 	});
-	db.collection("itemData").insertMany(items);
+}
 
-	if (shouldUpdate) {
-		fs.writeFileSync('./itemData.json', JSON.stringify(items)); 
-		shouldUpdate = false;
+function encSync() {
+	encs = require('./encData');
+	for (var e in encs) {
+		db.collection('encData').deleteMany({'texture': encs[e].texture});
+		db.collection("encData").insertOne(encs[e]);
 	}
+	encs = [];
 
-	//enems updating
-	for (var i in enems) {
-		db.collection("enemData").deleteMany(enems[i]);
-	}
-	db.collection("enemData").find().toArray(function(err, temp) {
+	db.collection('encData').find().toArray(function(err, temp) {
 		assert.equal(err, null);
-		for (var i in temp) {
-			console.log(i + ": Adding new item from db...\n" + temp[i]);
-			enems.push(temp[i]);
-			shouldUpdate = true;
-		}
+		for (var e in temp) encs.push(temp[e]);
 	});
-	db.collection("enemData").insertMany(enems);
-
-	if (shouldUpdate) {
-		fs.writeFileSync('./enemData.json', JSON.stringify(enems)); 
-		shouldUpdate = false;
-	}
 }
