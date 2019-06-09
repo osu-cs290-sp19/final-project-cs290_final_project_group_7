@@ -2,7 +2,7 @@
 var pla = {
 	hp: 6,
 	maxHp: 6,
-	items: [],
+	inventory: [],
 	statuses: {}
 };
 
@@ -46,6 +46,7 @@ var currentPage = "0";
 
 var textBox = document.getElementById("text-zone");
 var optionBox =document.getElementById("options");
+var itemBox = document.getElementById("inventory");
 
 var traveling = false;
 
@@ -128,16 +129,39 @@ function setArea(a){
 	
 }
 
+
+
 function renderInventory(inven){
-	var slots = document.getElementsClassName("item");
-	for (var i = 0; i < slots.length; i++){
-		slots[i].childNodes[0].innerHTML = "<img src=\""+ inven[i].tex + ".png\">";
+	var slots = document.getElementsByClassName("item");
+	for (var i = 0; i < inven.length; i++){
+		slots[i].innerHTML = "<img src=\"images/"+ inven[i].tex + ".png\" class=\"it\">" + String(inven[i].count);
 	}
 	
-	var tips = document.getElementsClassName("tooltip");
-	for (var i = 0; i < slots.length; i++){
+	var tips = document.getElementsByClassName("tooltip");
+	for (var i = 0; i < inven.length; i++){
 		tips[i].textContent = inven[i].desc;
 	}
+}
+
+function getItem(item){
+	if (pla.inventory.includes(item)){
+		pla.inventory[pla.inventory.indexOf(item)].count++;
+	} else {
+		pla.inventory.push(item);
+	}
+	renderInventory(pla.inventory);
+}
+
+function loseItem(item){
+	if (pla.inventory.includes(item)){
+		item = pla.inventory[pla.inventory.indexOf(item)];
+		if(item.count > 1){
+			item.count--;
+		} else {
+			pla.inventory.remove(item);
+		}
+		renderInventory(pla.inventory);
+	} 
 }
 
 function setText(text){
@@ -190,6 +214,7 @@ function optionClick(event){
 				setText(currentEncounter.social[currentPage].text)
 				//set options
 				setOptions(currentEncounter.social[currentPage].options)
+				doGameTurn();
 			}
 			
 		} else if (traveling){
@@ -224,7 +249,32 @@ function optionClick(event){
 	
 }
 
+var selectedItem = 0;
+function itemClick(event){
+	var items = document.getElementsByClassName("it");
+	var hit = event.target;
+	for (var i = 0; i < items.length; i++){
+		console.log(items[i]);
+		items[i].parentNode.parentNode.classList.remove("selected");
+		if (items[i] == hit && pla.inventory.length > i){
+			hit.parentNode.parentNode.classList.add("selected");
+			selectedItem = pla.inventory[i];
+		}
+	}
+
+}
+var obol = {
+	"tex" : "obol", 
+	"desc" : "An really old coin. Probably useful somewhere...",
+	"count" : 1
+}
+
+getItem(obol);
+getItem(obol);
+getItem(obol);
+
 optionBox.addEventListener('click', optionClick);
+itemBox.addEventListener('click', itemClick);
 
 setOptions(currentEncounter.social[currentPage].options);
 
