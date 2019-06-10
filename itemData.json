@@ -23,7 +23,7 @@
 		"_id":"5cf701aacf8e4039402d0868"
 	},
 	{
-		"texture":"desparate_apple",
+		"texture":"purple_apple",
 		"name":"Apple of Desparation",
 		"desc":"Is your soul worth living just a little longer?",
 		"effects":[
@@ -39,5 +39,14 @@
 		],
 		"weight":[0,0,0,0,1],
 		"_id":"5cf701aacf8e4039402d0869"
+	},
+	{
+		"texture" : "obol", 
+		"name" : "obol",
+		"desc" : "An really old coin. Probably useful somewhere...",
+		"count" : 1,
+		"target" : "enemy",
+		"damage" : "1-2"
+	
 	}
 ]

@@ -2,18 +2,7 @@
 var items = [];
 var randItem;
 
-var req = new XMLHttpRequest();
-req.open('GET', "/app/item/1");
-req.addEventListener('load', function(event){
-	console.log(event.target.response);
-	if (event.target.status === 200){
-		randItem = JSON.parse(event.target.response);
-		console.log(randItem);
-	} else {
-		console.log(event.target);
-	}
-});
-req.send();
+
 
 var itemsReq = new XMLHttpRequest();
 itemsReq.open('GET', "/app/item/all");
@@ -47,17 +36,9 @@ var pla = {
 	pos: [5, 5]
 };
 
-var obol = {
-	"tex" : "obol", 
-	"name" : "obol",
-	"desc" : "An really old coin. Probably useful somewhere...",
-	"count" : 1,
-	"target" : "enemy",
-	"damage" : "1-2",
-	
-}
 
-var items = [obol];
+
+
 function getItemByName(name){
 	for (var i in items){
 		if (items[i].name === name){
@@ -284,7 +265,7 @@ function setEncounterImage(a){
 function renderInventory(inven){
 	var slots = document.getElementsByClassName("item");
 	for (var i = 0; i < inven.length; i++){
-		slots[i].innerHTML = "<img src=\"images/"+ inven[i].tex + ".png\" class=\"it\">" + String(inven[i].count);
+		slots[i].innerHTML = "<img src=\"images/"+ inven[i].texture + ".png\" class=\"it\">" + String(inven[i].count);
 	}
 	
 	var tips = document.getElementsByClassName("tooltip");
@@ -447,7 +428,7 @@ function itemClick(event){
 }
 
 
-getItem(obol);
+getItem(getItemByName("obal"));
 
 setEncounterImage("yellow_imp");
 optionBox.addEventListener('click', optionClick);
