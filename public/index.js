@@ -13,7 +13,7 @@ req.addEventListener('load', function(event){
 	}
 });
 
-req.send("GIMME");
+req.send();
 
 
 
@@ -441,7 +441,9 @@ itemBox.addEventListener('click', itemClick);
 setOptions(currentEncounter.social[currentPage].options);
 
 
-setHearts(0, 9);
+setHearts(0, 25);
+setHearts(1, pla.hp);
+
 
 
 //-----------------------Char Creation-------------------------------\

@@ -39,10 +39,10 @@ img{
 }
 #pla-health{
 	width: 50%;
-	display: flex;
+	display: inline;
 	border: 2px solid black;
 	flex-wrap: wrap;
-	
+	float: right;
 }
 
 .heart{
@@ -220,13 +220,13 @@ img{
 	background-color: #555555;
 }
 
-#character-image{
+.character-image{
 	width: 128px;
 	height: 128px;
 	border: 2px solid black;
 }
 
-#character-image img{
+.character-image img{
 	width: 128px;
 	height: 128px;
 	
@@ -301,3 +301,19 @@ input{
 	color: #111111;
 	transition: 1s ease-in-out;
 }
+
+#end-screen{
+	display:flex;
+}
+
+.player-box{
+	background-color: #555555;
+	border: 2px solid black;
+}
+
+.player-header{
+	text-align: center;
+	border: 2px solid black;
+}
+
+.
