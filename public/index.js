@@ -1,9 +1,23 @@
 
 var items = [];
+var randItem;
 
 var req = new XMLHttpRequest();
 req.open('GET', "/app/item/1");
 req.addEventListener('load', function(event){
+	console.log(event.target.response);
+	if (event.target.status === 200){
+		randItem = JSON.parse(event.target.response);
+		console.log(randItem);
+	} else {
+		console.log(event.target);
+	}
+});
+req.send();
+
+var itemsReq = new XMLHttpRequest();
+itemsReq.open('GET', "/app/item/all");
+itemsReq.addEventListener('load', function(event){
 	console.log(event.target.response);
 	if (event.target.status === 200){
 		items = JSON.parse(event.target.response);
@@ -12,8 +26,9 @@ req.addEventListener('load', function(event){
 		console.log(event.target);
 	}
 });
+itemsReq.send();
 
-req.send();
+
 
 
 

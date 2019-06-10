@@ -3,23 +3,23 @@
 		"texture":"one_pin",
 		"name":"One Pin",
 		"desc":"A very long pin, its tip is dull from overuse.",
-		"dmg":50,
-		"weight":[0,1,2,4,8],
+		"dmg":3,
+		"weight":[1,2,4,8,16],
 		"_id":"5cf701aacf8e4039402d0867"
 	},
 	{
 		"texture":"foul_potion",
 		"name":"Foul Potion",
 		"desc":"Everything about this potion seems foul, but at least it is worth drinking. Barely.",
-		"dmg":15,
+		"dmg":1,
 		"effects":[
 			{
 				"type":"regen",
 				"duration":3,
-				"amount":10
+				"amount":1
 			}
 		],
-		"weight":[25,26,25,21,16],
+		"weight":[12,13,12,10,8],
 		"_id":"5cf701aacf8e4039402d0868"
 	},
 	{
