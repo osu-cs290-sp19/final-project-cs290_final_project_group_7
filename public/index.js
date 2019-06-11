@@ -42,8 +42,10 @@ var pla = {
 
 
 function getItemByName(name){
+	
 	for (var i in items){
-		if (items[i].name == name){
+		console.log(items[i]);
+		if (items[i].name === name){
 			return items[i];
 		}
 	}
@@ -267,6 +269,7 @@ function setEncounterImage(a){
 function renderInventory(inven){
 	var slots = document.getElementsByClassName("item");
 	for (var i = 0; i < inven.length; i++){
+		console.log(inven);
 		slots[i].innerHTML = "<img src=\"images/"+ inven[i].texture + ".png\" class=\"it\">" + String(inven[i].count);
 	}
 	
@@ -277,6 +280,7 @@ function renderInventory(inven){
 }
 
 function getItem(item){
+	
 	if (pla.inventory.includes(item)){
 		pla.inventory[pla.inventory.indexOf(item)].count++;
 	} else {
@@ -430,7 +434,7 @@ function itemClick(event){
 }
 
 function startGame() {
-	getItem(getItemByName("obol"));
+	getItem(getItemByName("Obol"));
 
 
 	setEncounterImage("yellow_imp");
