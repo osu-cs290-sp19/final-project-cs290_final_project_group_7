@@ -89,7 +89,7 @@
 				"text": "A flaming bird rises before you!",
 
 				"options": ["A CHALLENGER!", "RUN!", "Hold. Very. Still."],
-				"optionRes": ["1", "2", "3"]
+				"optionRes": ["1", "2", "1"]
 			},
 			"1": {
 				"text": "Upon noticing you, the Phoenix cries its challenge",
@@ -97,6 +97,23 @@
 					"status": "combat"
 				},
 				"options": ["Let's do this!"],
+				"optionRes": ["0"]
+			},
+			"2": {
+				"onStart": {
+					"name": "randomPage",
+					"pages": ["1", "3"],
+					"chance": [80, 20]
+				},
+				"options": ["Let's do this!"],
+				"optionRes": ["0"]
+			},
+			"3": {
+				"text": "You barely make it out this time.",
+				"onStart": {
+					"name": "endEncounter"
+				},
+				"options": ["Next"],
 				"optionRes": ["0"]
 			}
 		}

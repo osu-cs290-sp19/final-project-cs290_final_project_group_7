@@ -62,6 +62,12 @@ function random(min, max) {
   return (Math.random() * (max - min)) + min;
 }
 
+function randInt(min, max) {
+	min = Math.ceil(min);
+	max = Math.floor(max);
+	return Math.floor(Math.random() * (max - min)) + min;
+}
+
 var pla = {
 	hp: 6,
 	maxHp: 6,
@@ -362,6 +368,7 @@ function hasItem(item){
 	}
 	return -1;
 }
+
 function runOnPage(command){
 	if (command.name === "damagePlayer"){
 		pla.hp -= command.args[0]
@@ -381,10 +388,26 @@ function runOnPage(command){
 	}
 	if (command.name === "setPage"){
 		currentPage = command.args[0];
+		return true;
 	}
 	if (command.name === "endEncounter"){
 		endEncounter();
 	}
+	if (command.name === "randomPage") {
+		var randInt = 0;
+		for (var i in command.chance) {
+			randInt += command.chance[i];
+		}
+		randInt = randInt(0, randInt - 1);
+		for (var i in command.chance) {
+			randInt -= command.chance[i];
+			if (randInt <= 0) {
+				currentPage = command.pages[i];
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 function startEncounter(){
@@ -399,8 +422,10 @@ function startEncounter(){
 	if (potentialEncs.length > 0) encGot = encs[Math.floor(random(0, potentialEncs.length - 1))];
 	currentEncounter = encGot;
 	currentPage = 0;
+
 	
 	setEncounterImage(currentEncounter.texture);
+
 	setOptions(currentEncounter.social[currentPage].options);
 }
 
@@ -461,7 +486,9 @@ function optionClick(event){
 				//set options
 				setOptions(currentEncounter.social[currentPage].options)
 				doGameTurn();
-				if (currentEncounter.social[currentPage].onStart) runOnPage(currentEncounter.social[currentPage].onStart);
+				if (currentEncounter.social[currentPage].onStart) {
+					while (runOnPage(currentEncounter.social[currentPage].onStart));
+				}
 			}
 			
 		} else if (traveling){
