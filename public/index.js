@@ -437,6 +437,8 @@ function startEncounter(){
 	}
 	if (potentialEncs.length > 0) encGot = encs[Math.floor(random(0, potentialEncs.length - 1))];
 	currentEncounter = encGot;
+	currentPage = 0;
+	setOptions(currentEncounter.social[currentPage].options);
 }
 
 function endEncounter(){
@@ -474,7 +476,9 @@ function optionClick(event){
 	var hit = event.target;
 	if (hit){
 		if (currentEncounter){
+			console.log("currentPage:", currentPage);
 			var page = currentEncounter.social[currentPage];
+			console.log("page:", page);
 			
 			
 			var choice = page.options.indexOf(hit.textContent);

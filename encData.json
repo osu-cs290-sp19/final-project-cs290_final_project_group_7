@@ -3,6 +3,7 @@
 		"name": "yellow imp",
 		"items": [],
 		"health": 10,
+		"areaAvail": [0,1,2,3,4,5],
 		"social": {
 			"0": {
 				"text": "HELLO THERE!",
@@ -31,6 +32,68 @@
 			"3": {
 				"text": "HEY!  You don't have enough obols!",
 				"options": ["oh"],
+				"optionRes": ["0"]
+			}
+		}
+	},
+	{
+		"name":"fountain",
+		"items": [],
+		"health": 10,
+		"areaAvail": [0],
+		"social": {
+			"0": {
+				"text": "A fountain sits before you.",
+
+				"options": ["Drink from the fountain.", "Smash the fountain!", "Leave"],
+				"optionRes": ["1", "2", "3"]
+			},
+			"1": {
+				"text": "You sate your thirst. The liquid slowly fills back in.",
+
+				"options": ["Drink from the fountain.", "Smash the fountain!", "Leave"],
+				"optionRes": ["1", "2", "3"]
+			},
+			"2": {
+				"text": "With a mighty kick, you smash the fountain!\nSomething glimmers in the rubble...",
+
+				"options": ["Investigate the glimmer.", "Leave"],
+				"optionRes": ["4", "3"]
+			},
+			"3": {
+				"text": "You turn and leave.",
+				"onStart": {
+					"name": "endEncounter"
+				},
+				"options": ["Next"],
+				"optionRes": ["0"]
+			},
+			"4": {
+				"text": "There was an obol!",
+
+				"options": ["Leave"],
+				"optionRes": ["3"]
+			}
+		}
+	},
+	{
+		"name":"phoenix",
+		"items": [],
+		"health": 15,
+		"areaAvail": [6],
+		"social": {
+			"0": {
+				"text": "A flaming bird rises before you!",
+
+				"options": ["A CHALLENGER!", "RUN!", "Hold. Very. Still."],
+				"optionRes": ["1", "2", "3"]
+			},
+			"1": {
+				"text": "Upon noticing you, the Phoenix cries its challenge",
+				"onStart": {
+					"status": "combat"
+				},
+				"options": ["Let's do this!"],
 				"optionRes": ["0"]
 			}
 		}
