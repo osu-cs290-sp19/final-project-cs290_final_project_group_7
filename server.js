@@ -47,7 +47,7 @@ MongoClient.connect(url, function(err, client) {
 
 function getGhost(req, res, next) {
 	if (req.params.area == 'all'){
-		res.status(200).send(JSON.stringify(ghost));
+		res.status(200).send(JSON.stringify(ghosts));
 	} else {
 		console.log("area in:", req.params.area);
 		var area = req.params.area >= 0 ? (req.params.area >= 4 ? 4 : req.params.area) : 0;
@@ -55,7 +55,7 @@ function getGhost(req, res, next) {
 		var ghostGot;
 		var potentialGhosts = [];
 
-		for (var i in ghost) {
+		for (var i in ghosts) {
 			if (ghosts[i].locale == area) {
 				potentialGhosts.push(ghosts[i]);
 			}
@@ -257,14 +257,14 @@ app.get('*', function(res, req,next) {
 	next();
 });
 
-app.get('/app/ghost&locale=:area', getGhost);
+app.get('/app/ghost/:area', getGhost);
 
 //hey, uh, gimme all da items, not one, thx
 app.get('/app/item/:area', getItem);
 
-app.get('/app/enc&locale=:area', getEnc);
+app.get('/app/enc/:area', getEnc);
 
-app.post('/app/ghost&locale=:area', makeNewGhost);
+app.post('/app/ghost/make/:area', makeNewGhost);
 
 app.use(express.static('public'));
 

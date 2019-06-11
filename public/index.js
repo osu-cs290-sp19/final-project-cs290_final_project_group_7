@@ -1,24 +1,57 @@
 
-var items = [];
-var randItem;
+var items;
+var ghosts;
+var encs;
 
+function getEncs() {
+	var encReq = new XMLHttpRequest();
+	encReq.open('GET', "/app/enc/all");
+	encReq.addEventListener('load', function(event){
+		console.log(event.target.response);
+		if (event.target.status === 200){
+			encs = JSON.parse(event.target.response);
+			console.log(encs);
+		} else {
+			console.log(event.target);
+		}
+		getGhosts();
+	});
+	encReq.send();
+}
 
+function getGhosts() {
+	var ghostReq = new XMLHttpRequest();
+	ghostReq.open('GET', "/app/ghost/all");
+	ghostReq.addEventListener('load', function(event){
+		console.log(event.target.response);
+		if (event.target.status === 200){
+			ghosts = JSON.parse(event.target.response);
+			console.log(ghosts);
+		} else {
+			console.log(event.target);
+		}
+		getItems();
+	});
+	ghostReq.send();
+}
 
-var itemsReq = new XMLHttpRequest();
-itemsReq.open('GET', "/app/item/all");
-itemsReq.addEventListener('load', function(event){
-	console.log(event.target.response);
-	if (event.target.status === 200){
-		items = JSON.parse(event.target.response);
-		console.log(items);
-	} else {
-		console.log(event.target);
-	}
-	startGame();
-});
-itemsReq.send();
+function getItems(){
+	var itemsReq = new XMLHttpRequest();
+	itemsReq.open('GET', "/app/item/all");
+	itemsReq.addEventListener('load', function(event){
+		console.log(event.target.response);
+		if (event.target.status === 200){
+			items = JSON.parse(event.target.response);
+			console.log(items);
+		} else {
+			console.log(event.target);
+		}
+		startGame();
+	});
+	itemsReq.send();
+}
 
-
+getEncs();
 
 
 
