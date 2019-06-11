@@ -4,6 +4,20 @@ var randItem;
 
 
 
+var itemsReq = new XMLHttpRequest();
+itemsReq.open('GET', "/app/item/all");
+itemsReq.addEventListener('load', function(event){
+	console.log(event.target.response);
+	if (event.target.status === 200){
+		items = JSON.parse(event.target.response);
+		console.log(items);
+	} else {
+		console.log(event.target);
+	}
+	startGame();
+});
+itemsReq.send();
+
 
 
 
@@ -29,7 +43,7 @@ var pla = {
 
 function getItemByName(name){
 	for (var i in items){
-		if (items[i].name === name){
+		if (items[i].name == name){
 			return items[i];
 		}
 	}
@@ -415,18 +429,21 @@ function itemClick(event){
 
 }
 
+function startGame() {
+	getItem(getItemByName("obol"));
 
 
-
-setEncounterImage("yellow_imp");
-optionBox.addEventListener('click', optionClick);
-itemBox.addEventListener('click', itemClick);
-
-setOptions(currentEncounter.social[currentPage].options);
+	setEncounterImage("yellow_imp");
+	optionBox.addEventListener('click', optionClick);
+	itemBox.addEventListener('click', itemClick);
 
 
-setHearts(0, 25);
-setHearts(1, pla.hp);
+	setOptions(currentEncounter.social[currentPage].options);
+
+
+	setHearts(0, 25);
+	setHearts(1, pla.hp);
+}
 
 
 
