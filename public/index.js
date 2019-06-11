@@ -431,7 +431,7 @@ function startEncounter(){
 	var potentialEncs = [];
 
 	for (var i in encs) {
-		if (encs[i].areaAvail[area.id]) {
+		if (encs[i].areaAvail[currentArea.id]) {
 			potentialEncs.push(encs[i]);
 		}
 	}
@@ -455,7 +455,7 @@ function scrounge(){
 		totalWeight += items[i].weight[currentArea.id];
 		console.log("weight: " + totalWeight, "item added: " + items[i].name);
 	}
-	var point = randInt(0, totalWeight);
+	var point = random(0, totalWeight);
 	for (i in Object.keys(items)) {
 		if (point - items[i].weight[currentArea.id] <= 0) {
 			itemGot = items[i];
