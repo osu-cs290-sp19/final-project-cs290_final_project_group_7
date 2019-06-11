@@ -14,6 +14,7 @@ itemsReq.addEventListener('load', function(event){
 	} else {
 		console.log(event.target);
 	}
+	startGame();
 });
 itemsReq.send();
 
@@ -41,7 +42,7 @@ var pla = {
 
 function getItemByName(name){
 	for (var i in items){
-		if (items[i].name === name){
+		if (items[i].name == name){
 			return items[i];
 		}
 	}
@@ -427,18 +428,19 @@ function itemClick(event){
 
 }
 
+function startGame() {
+	getItem(getItemByName("obol"));
 
-getItem(getItemByName("obal"));
+	setEncounterImage("yellow_imp");
+	optionBox.addEventListener('click', optionClick);
+	itemBox.addEventListener('click', itemClick);
 
-setEncounterImage("yellow_imp");
-optionBox.addEventListener('click', optionClick);
-itemBox.addEventListener('click', itemClick);
-
-setOptions(currentEncounter.social[currentPage].options);
+	setOptions(currentEncounter.social[currentPage].options);
 
 
-setHearts(0, 25);
-setHearts(1, pla.hp);
+	setHearts(0, 25);
+	setHearts(1, pla.hp);
+}
 
 
 
