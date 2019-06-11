@@ -431,12 +431,14 @@ function startEncounter(){
 	var potentialEncs = [];
 
 	for (var i in encs) {
-		if (encs[i].areaAvail[area.id]) {
+		if (encs[i].areaAvail[currentArea.id]) {
 			potentialEncs.push(encs[i]);
 		}
 	}
 	if (potentialEncs.length > 0) encGot = encs[Math.floor(random(0, potentialEncs.length - 1))];
 	currentEncounter = encGot;
+	currentPage = 0;
+	setOptions(currentEncounter.social[currentPage].options);
 }
 
 function endEncounter(){
@@ -455,7 +457,7 @@ function scrounge(){
 		totalWeight += items[i].weight[currentArea.id];
 		console.log("weight: " + totalWeight, "item added: " + items[i].name);
 	}
-	var point = randInt(0, totalWeight);
+	var point = random(0, totalWeight);
 	for (i in Object.keys(items)) {
 		if (point - items[i].weight[currentArea.id] <= 0) {
 			itemGot = items[i];
@@ -474,7 +476,9 @@ function optionClick(event){
 	var hit = event.target;
 	if (hit){
 		if (currentEncounter){
+			console.log("currentPage:", currentPage);
 			var page = currentEncounter.social[currentPage];
+			console.log("page:", page);
 			
 			
 			var choice = page.options.indexOf(hit.textContent);
