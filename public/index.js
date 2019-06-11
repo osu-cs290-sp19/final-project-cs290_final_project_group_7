@@ -71,7 +71,43 @@ var pla = {
 	pos: [5, 5]
 };
 
-
+var areas = {
+	"crag" : {
+		"name" : "Crag",
+		"texture" : "areas/crag",
+		"id" : 0
+	},
+	"forest" : {
+		"name" : "Forest",
+		"texture" : "areas/forest",
+		"id" : 1
+	},
+	"chasm" : {
+		"name" : "Chasm",
+		"texture" : "areas/chasm",
+		"id" : 2
+	},
+	"river" : {
+		"name" : "River",
+		"texture" : "areas/river",
+		"id" : 3
+	},
+	"chasm-bridge" : {
+		"name" : "Chasm Bridge",
+		"texture" : "areas/chasm_bridge",
+		"id" : 4
+	},
+	"river-bridge" : {
+		"name" : "River Bridge",
+		"texture" : "areas/river_bridge",
+		"id" : 5
+	},
+	"edge" : {
+		"name" : "Edge",
+		"texture" : "areas/edge",
+		"id" : 6
+	},
+}
 
 
 function getItemByName(name){
@@ -174,7 +210,7 @@ function genWorld(defaul){
 }
 
 function getEnc(){
-	var poses = world.keys();
+	var poses = Object.keys(world);
 	for (var i in poses){
 		if (poses[i].includes("y")) { // line
 			var eq = poses[i].split(" "); //split equation
@@ -207,10 +243,7 @@ function getEnc(){
 
 var currentEncounter = testEncounter;
 var currentPage = "0";
-var currentArea = {
-	"name":"crag"
-	
-};
+var currentArea = {};
 
 
 var textBox = document.getElementById("text-zone");
@@ -238,6 +271,8 @@ function useItem(item, target) {
 
 function rest(){
 	pla.hp += pla.maxHp * 0.2;
+	addText("You take a brief rest...");
+	
 }
 
 function doGameTurn() {
@@ -313,7 +348,7 @@ function renderInventory(inven){
 }
 
 function getItem(item){
-	
+	addText("You found: " + item.name);
 	if (pla.inventory.includes(item)){
 		pla.inventory[pla.inventory.indexOf(item)].count++;
 	} else {
@@ -334,8 +369,12 @@ function loseItem(item){
 	} 
 }
 
-function setText(text){
-	textBox.textContent = text;
+function addText(text){
+	textBox.textContent += text;
+}
+
+function clearText(){
+	textBox.textContent = "";
 }
 
 function setOptions(options){
@@ -361,13 +400,6 @@ function hasItem(item){
 	}
 	return -1;
 }
-
-function endEncounter(){
-	currentEncounter = null;
-	setOptions(baseOptions);
-	setEncounterImage("areas/" + currentArea.name);
-}
-
 function runOnPage(command){
 	if (command.name === "damagePlayer"){
 		pla.hp -= command.args[0]
@@ -394,6 +426,48 @@ function runOnPage(command){
 	}
 }
 
+function startEncounter(){
+	var encGot;
+	var potentialEncs = [];
+
+	for (var i in encs) {
+		if (encs[i].areaAvail[area.id]) {
+			potentialEncs.push(encs[i]);
+		}
+	}
+	if (potentialEncs.length > 0) encGot = encs[Math.floor(random(0, potentialEncs.length - 1))];
+	currentEncounter = encGot;
+}
+
+function endEncounter(){
+	if (currentEncounter.onEnd) runOnPage(currentEncounter.onEnd);
+	currentEncounter = null;
+	setOptions(baseOptions);
+	setEncounterImage("areas/" + currentArea.name);
+}
+
+
+
+function scrounge(){
+	var itemGot;
+	var totalWeight = 0;
+	for (i in items) {
+		totalWeight += items[i].weight[currentArea.id];
+		console.log("weight: " + totalWeight, "item added: " + items[i].name);
+	}
+	var point = randInt(0, totalWeight);
+	for (i in Object.keys(items)) {
+		if (point - items[i].weight[currentArea.id] <= 0) {
+			itemGot = items[i];
+		} else {
+			point -= items[i].weight[currentArea.id];
+		}
+	}
+	getItem(itemGot);
+	startEncounter();
+	
+}
+
 
 
 function optionClick(event){
@@ -411,7 +485,8 @@ function optionClick(event){
 				
 				doGameTurn();
 				//setText
-				setText(currentEncounter.social[currentPage].text)
+				clearText();
+				addText(currentEncounter.social[currentPage].text)
 				//set options
 				setOptions(currentEncounter.social[currentPage].options)
 				doGameTurn();
@@ -425,23 +500,38 @@ function optionClick(event){
 				
 			} else if (hit.textContent === "North"){
 				pla.pos[1]++;
+				addText("You travel north...");
+				currentArea = areas[getEnc()];
 			} else if (hit.textContent === "East"){
 				pla.pos[0]++;
+				addText("You travel north...");
+				currentArea = areas[getEnc()];
 			} else if (hit.textContent === "South"){
 				pla.pos[1]--;
+				addText("You travel north...");
+				currentArea = areas[getEnc()];
 			} else if (hit.textContent === "West"){
 				pla.pos[1]--;
+				addText("You travel north...");
+				currentArea = areas[getEnc()];
 			} 
+			traveling = false;
+			setOptions(baseOptions);
+			setEncounterImage(currentArea.texture);
 			
 		} else {
 			if (hit.textContent === "Use Item"){
+				clearText();
 				useItem(selectedItem)
 			} else if (hit.textContent === "Travel"){
+				clearText();
 				traveling = true;
 				setOptions(travelOptions);
 			} else if (hit.textContent === "Scrounge"){
+				clearText();
 				scrounge();
 			} else if (hit.textContent === "Rest"){
+				clearText();
 				rest();
 			} 
 		}
@@ -480,6 +570,9 @@ function startGame() {
 
 	setHearts(0, 25);
 	setHearts(1, pla.hp);
+	genWorld("crag");
+	currentArea = areas[getEnc()];
+	setEncounterImage(currentArea.texture);
 }
 
 
