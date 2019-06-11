@@ -3,15 +3,18 @@
 		"texture":"one_pin",
 		"name":"One Pin",
 		"desc":"A very long pin, its tip is dull from overuse.",
-		"dmg":3,
+		"damage":3,
+		"use" : "You stab the enemy!",
 		"weight":[1,2,4,8,16],
+		"target" : "enemy",
+		"count" : 1,
 		"_id":"5cf701aacf8e4039402d0867"
 	},
 	{
 		"texture":"foul_potion",
 		"name":"Foul Potion",
 		"desc":"Everything about this potion seems foul, but at least it is worth drinking. Barely.",
-		"dmg":1,
+		"damage":1,
 		"effects":[
 			{
 				"type":"regen",
@@ -19,6 +22,9 @@
 				"amount":1
 			}
 		],
+		"count" : 1,
+		"target" : "player",
+		"use" : "You drink the potion. It tastes like maggot cheese.",
 		"weight":[12,13,12,10,8],
 		"_id":"5cf701aacf8e4039402d0868"
 	},
@@ -37,16 +43,92 @@
 				"duration":2
 			}
 		],
+		"count" : 1,
+		"use" : "You take a bite from the apple. It tastes like hope.",
+		"target" : "player",
 		"weight":[0,0,0,0,1],
 		"_id":"5cf701aacf8e4039402d0869"
 	},
 	{
 		"texture" : "obol", 
-		"name" : "obol",
+		"name" : "Obol",
 		"desc" : "An really old coin. Probably useful somewhere...",
+		"use" : "You throw money at the problem!",
 		"count" : 1,
 		"target" : "enemy",
-		"damage" : "1-2"
+		"damage" : 1,
+		"weight":[11,11,11,11,11]
+	
+	},
+	{
+		"texture" : "demon_soul", 
+		"name" : "Demon Soul",
+		"desc" : "A soul filled with malevolent hatred. You really want to get rid of it",
+		"count" : 1,
+		"use" : "You consume the soul, and it makes you stronger. It also makes you feel like terrible.",
+		"target" : "player",
+		"effects":[
+			{
+				"type":"gainHealth",
+				"duration":-1,
+				"amount":4
+			},
+			{
+				"type":"sin",
+				"duration":-1,
+				"amount":5
+			}
+		]
+	
+	},
+	{
+		"texture" : "human_soul", 
+		"name" : "Lost Soul",
+		"desc" : "A soul of a lost one. It's glow is captivating",
+		"count" : 1,
+		"use" : "You consume the soul, and it makes you stronger. You hope you're doing it a favor.",
+		"target" : "player",
+		"effects":[
+			{
+				"type":"gainHealth",
+				"duration":-1,
+				"amount":4
+			}
+		
+		]
+	
+	},
+	{
+		"texture" : "corrupt_soul", 
+		"name" : "Corrupted Soul",
+		"desc" : "A swirling filth. It screams at you.",
+		"count" : 1,
+		"use" : "You consume the soul, and it makes you stronger. A grim smile crosses your face.",
+		"target" : "player",
+		"effects":[
+			{
+				"type":"gainHealth",
+				"duration":-1,
+				"amount":6
+			},
+				{
+				"type":"sin",
+				"duration":-1,
+				"amount":7
+			}
+		
+		]
+	
+	},
+	{
+		"texture" : "burning_bone", 
+		"name" : "Heat Bone",
+		"desc" : "A bone with a burning core. Probably packs a punch",
+		"use" : "You hit the enemy with the bone! They burst into flame!",
+		"count" : 1,
+		"target" : "enemy",
+		"damage" : 5,
+		"weight":[7,7,7,7,7]
 	
 	}
 ]
