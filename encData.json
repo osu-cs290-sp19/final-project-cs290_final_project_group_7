@@ -2,6 +2,7 @@
 	{
 		"name": "yellow imp",
 		"items": [],
+		"texture" : "yellow_imp",
 		"health": 10,
 		"areaAvail": [0,1,2,3,4,5],
 		"social": {
@@ -39,6 +40,7 @@
 	{
 		"name":"fountain",
 		"items": [],
+		"texture" : "fountain",
 		"health": 10,
 		"areaAvail": [0],
 		"social": {
@@ -79,6 +81,7 @@
 	{
 		"name":"phoenix",
 		"items": [],
+		"texture" : "phoenix",
 		"health": 15,
 		"areaAvail": [6],
 		"social": {

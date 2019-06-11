@@ -113,7 +113,7 @@ var areas = {
 function getItemByName(name){
 	
 	for (var i in items){
-		console.log(items[i]);
+		
 		if (items[i].name === name){
 			return items[i];
 		}
@@ -127,47 +127,7 @@ var maxHealth = 82; //Screen limitation
 var baseOptions = ["Travel", "Scrounge", "Rest", "Use Item"];
 var travelOptions = ["North", "East", "South", "West", "Back"];
 
-var testEncounter = {
-	name: "yellow imp",
-	items: [],
-	health: 10,
-	social: {
-		"0": {
-			text: "HELLO THERE!",
-			
-			options: ["Buy foul potion for 3 obals", "2"],
-			optionRes: ["1", "2"]
-		},
-		"1": {
-			text: "Pleased to be doing busness with you!",
-			options: ["I'll take another", "Bye!"],
-			onStart: {
-				"name" : "itemCheck",
-				"args" : ["obol", 3, {"name":"gainItem", "args" : ["foul potion", 1]}, {"name":"setPage", "args" : ["3"]}]
-			},
-			optionRes: ["0", "2"]
-		},
-		"2": {
-			text: "Goodbye!",
-			onStart: {
-				"name" : "endEncounter"
-			
-			},
-			options: ["0", "1"],
-			optionRes: ["0", "1"]
-		},
-		
-		"3": {
-			text: "HEY!  You don't have enough obols!",
-			options: ["oh"],
-			optionRes: ["0"]
-		}
-		
-		
-	}
-	
-	
-};
+
 
 var world= {
 	"y = 0.5*x -2" : "chasm",
@@ -241,7 +201,7 @@ function getEnc(){
 }
 
 
-var currentEncounter = testEncounter;
+var currentEncounter = null;
 var currentPage = "0";
 var currentArea = {};
 
@@ -337,7 +297,7 @@ function setEncounterImage(a){
 function renderInventory(inven){
 	var slots = document.getElementsByClassName("item");
 	for (var i = 0; i < inven.length; i++){
-		console.log(inven);
+		
 		slots[i].innerHTML = "<img src=\"images/"+ inven[i].texture + ".png\" class=\"it\">" + String(inven[i].count);
 	}
 	
@@ -370,10 +330,12 @@ function loseItem(item){
 }
 
 function addText(text){
-	textBox.textContent += text;
+	var textBox = document.getElementById("text-zone");
+	textBox.textContent += text + "\n";
 }
 
 function clearText(){
+	var textBox = document.getElementById("text-zone");
 	textBox.textContent = "";
 }
 
@@ -406,10 +368,9 @@ function runOnPage(command){
 	}
 	if (command.name === "itemCheck"){
 		var idx = hasItem(command.args[0])
-		console.log(pla.inventory[idx].count);
-		console.log(command.args[1]);
+		
 		if (idx >= 0 && pla.inventory[idx].count >= command.args[1]){
-			console.log("EYSSSSSSSSSSSSSSSS");
+			
 			command = command.args[2];
 		} else {
 			command = command.args[3];
@@ -438,6 +399,8 @@ function startEncounter(){
 	if (potentialEncs.length > 0) encGot = encs[Math.floor(random(0, potentialEncs.length - 1))];
 	currentEncounter = encGot;
 	currentPage = 0;
+	
+	setEncounterImage(currentEncounter.texture);
 	setOptions(currentEncounter.social[currentPage].options);
 }
 
@@ -452,12 +415,16 @@ function endEncounter(){
 
 function scrounge(){
 	var itemGot;
-	var totalWeight = 0;
-	for (i in items) {
-		totalWeight += items[i].weight[currentArea.id];
-		console.log("weight: " + totalWeight, "item added: " + items[i].name);
+	var total = 0;
+	
+	for (var i = 0; i < items.length; i++) {
+		
+		total = items[i].weight[currentArea.id] + total;
+		
+	
 	}
-	var point = random(0, totalWeight);
+	var point = random(0, total);
+
 	for (i in Object.keys(items)) {
 		if (point - items[i].weight[currentArea.id] <= 0) {
 			itemGot = items[i];
@@ -471,14 +438,14 @@ function scrounge(){
 }
 
 
-
+var lastMove = "";
 function optionClick(event){
 	var hit = event.target;
 	if (hit){
 		if (currentEncounter){
-			console.log("currentPage:", currentPage);
+			
 			var page = currentEncounter.social[currentPage];
-			console.log("page:", page);
+		
 			
 			
 			var choice = page.options.indexOf(hit.textContent);
@@ -506,22 +473,27 @@ function optionClick(event){
 				pla.pos[1]++;
 				addText("You travel north...");
 				currentArea = areas[getEnc()];
+				lastMove = hit.textContent;
 			} else if (hit.textContent === "East"){
 				pla.pos[0]++;
-				addText("You travel north...");
+				addText("You travel east...");
 				currentArea = areas[getEnc()];
+				lastMove = hit.textContent;
 			} else if (hit.textContent === "South"){
 				pla.pos[1]--;
-				addText("You travel north...");
+				addText("You travel south...");
 				currentArea = areas[getEnc()];
+				lastMove = hit.textContent;
 			} else if (hit.textContent === "West"){
 				pla.pos[1]--;
-				addText("You travel north...");
+				addText("You travel west...");
 				currentArea = areas[getEnc()];
+				lastMove = hit.textContent;
 			} 
 			traveling = false;
 			setOptions(baseOptions);
 			setEncounterImage(currentArea.texture);
+			
 			
 		} else {
 			if (hit.textContent === "Use Item"){
@@ -550,7 +522,7 @@ function itemClick(event){
 	var hit = event.target;
 	selectedItem = null;
 	for (var i = 0; i < items.length; i++){
-		console.log(items[i]);
+		
 		items[i].parentNode.parentNode.classList.remove("selected");
 		if (items[i] == hit && pla.inventory.length > i){
 			hit.parentNode.parentNode.classList.add("selected");
@@ -564,16 +536,14 @@ function startGame() {
 	getItem(getItemByName("Obol"));
 
 
-	setEncounterImage("yellow_imp");
+	
 	optionBox.addEventListener('click', optionClick);
 	itemBox.addEventListener('click', itemClick);
 
 
-	setOptions(currentEncounter.social[currentPage].options);
+	setOptions(baseOptions);
 
-
-	setHearts(0, 25);
-	setHearts(1, pla.hp);
+	setHearts(1, pla.hp);	
 	genWorld("crag");
 	currentArea = areas[getEnc()];
 	setEncounterImage(currentArea.texture);
