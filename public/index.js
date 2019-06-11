@@ -4,18 +4,6 @@ var randItem;
 
 
 
-var itemsReq = new XMLHttpRequest();
-itemsReq.open('GET', "/app/item/all");
-itemsReq.addEventListener('load', function(event){
-	console.log(event.target.response);
-	if (event.target.status === 200){
-		items = JSON.parse(event.target.response);
-		console.log(items);
-	} else {
-		console.log(event.target);
-	}
-});
-itemsReq.send();
 
 
 
@@ -428,7 +416,7 @@ function itemClick(event){
 }
 
 
-getItem(getItemByName("obal"));
+
 
 setEncounterImage("yellow_imp");
 optionBox.addEventListener('click', optionClick);
