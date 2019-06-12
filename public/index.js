@@ -731,9 +731,6 @@ function fadeOutEffect(target, go = null) {
         } else {
             clearInterval(fadeEffect);
 			charScreen.classList.add("hidden");
-			if (go){
-				window.location.href = go;
-			}
         }
     }, 1);
 }
@@ -748,9 +745,9 @@ beginButton.addEventListener('click', function(){
 });
 
 function die(){
-	fadeOutEffect(gameScreen, "/gameOver");
+	fadeOutEffect(gameScreen);
 	
-	pushChar("Score: " + pla.score);
+	pushChar(true, true, "Score: " + pla.score);
 }
 
 function pushChar(addGhost = true, addVictor = true, podiumText) {
@@ -797,6 +794,8 @@ function pushChar(addGhost = true, addVictor = true, podiumText) {
 		console.log("sending:", newVictor);
 		victorReq.send(JSON.stringify(newVictor));
 	}
+
+	window.location.href = "/gameOver";
 	
 }
 
