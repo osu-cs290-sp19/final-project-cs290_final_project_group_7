@@ -288,7 +288,7 @@ app.get('/', function(req, res, next) {
 app.get('/gameOver', function(req, res, next){
 	db.collection('deathBoard').find({}).toArray(function(err, temp){
 		assert.equal(err, null);
-		var podium = temp.slice(0, 2);
+		var podium = temp.slice(0, 3);
 
 		res.status(200).render('gameOver', {
 			'victors': podium
