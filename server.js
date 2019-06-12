@@ -121,24 +121,29 @@ function getEnc(req, res, next) {
 }
 
 function makeNewGhost(req, res, next) {
+	console.log("recieved ghost to be made", req.body);
 	var area = req.params.area >= 0 ? (req.params.area <= 4 ? 4 : req.params.area) : 0;
 	var body = req.body;
-	if (body.name && body.hp && body.items && body.aggression && body.hospitality
-		&& body.tex1 && body.tex2){
 
+	console.log("name", body.name, "hp", body.hp, "agg", body.aggression , "hosp", body.hospitality,
+		'texture1', body.texture[0] ,"texture2", body.texture[1])
+	if (body.name && body.hp && body.aggression >= 0 && (body.hospitality == 0 || body.hospitality != 0)
+		&& body.texture[0] && body.texture[1]){
+		if (!body.items) body.items = [];
 		var newGhost = {
 			"name": body.name,
 			"stats": {
 				"hp": body.hp,
-				"items": body.items
+				"items": body.items 
 			},
 			"aggression": body.aggression,
 			"hospitality": body.hospitality,
-			"texture": [body.tex1, body.tex2]
+			"texture": [body.texture[0], body.texture[1]]
 		};
 
 		db.collection('ghostData').insertOne(newGhost);
 		ghostSync();
+		console.log("success!");
 		res.status(200).send("Success.");
 	} else {
 		res.status(400).send("Ghost could not be made, likely missing fields.");
@@ -146,6 +151,7 @@ function makeNewGhost(req, res, next) {
 }
 
 function saveDeadChar(req, res, next) {
+	console.log("recieved victor to be made", req.body);
 	var body = req.body;
 	if (body.name && body.image1 && body.image2 && body.text){
 		var newDead =  {
@@ -157,7 +163,7 @@ function saveDeadChar(req, res, next) {
 		db.collection('deathBoard').find({}).toArray(function(err, temp){
 			assert.equal(err, null);
 			var newArr = temp.slice(0, 2);
-			newArr.unShift(newDead);
+			newArr.unshift(newDead);
 			db.collection('deathBoard').deleteMany({});
 			db.collection('deathBoard').insertMany(newArr);
 		});
