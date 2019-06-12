@@ -8,6 +8,7 @@
 		"weight":[1,2,4,8,16,32,64],
 		"target" : "enemy",
 		"count" : 1,
+		"score" : 5,
 		"_id":"5cf701aacf8e4039402d0867"
 	},
 	{
@@ -25,6 +26,7 @@
 		"count" : 1,
 		"target" : "player",
 		"use" : "You drink the potion. It tastes like maggot cheese.",
+		"score" : 2,
 		"weight":[12,13,12,10,8,5,2],
 		"_id":"5cf701aacf8e4039402d0868"
 	},
@@ -44,6 +46,7 @@
 			}
 		],
 		"count" : 1,
+		"score" : 10,
 		"use" : "You take a bite from the apple. It tastes like hope.",
 		"target" : "player",
 		"weight":[0,0,0,0,0,0,1],
@@ -55,6 +58,7 @@
 		"desc" : "An really old coin. Probably useful somewhere...",
 		"use" : "You throw money at the problem!",
 		"count" : 1,
+		"score" : 1,
 		"target" : "enemy",
 		"damage" : 1,
 		"weight":[11,11,11,11,11,11,11]
@@ -65,6 +69,7 @@
 		"name" : "Demon Soul",
 		"desc" : "A soul filled with malevolent hatred. You really want to get rid of it",
 		"count" : 1,
+		"score" : 10,
 		"use" : "You consume the soul, and it makes you stronger. It also makes you feel like terrible.",
 		"target" : "player",
 		"effects":[
@@ -87,6 +92,7 @@
 		"name" : "Lost Soul",
 		"desc" : "A soul of a lost one. It's glow is captivating",
 		"count" : 1,
+		"score" : 15,
 		"use" : "You consume the soul, and it makes you stronger. You hope you're doing it a favor.",
 		"target" : "player",
 		"effects":[
@@ -104,6 +110,7 @@
 		"name" : "Corrupted Soul",
 		"desc" : "A swirling filth. It screams at you.",
 		"count" : 1,
+		"score" : 10,
 		"use" : "You consume the soul, and it makes you stronger. A grim smile crosses your face.",
 		"target" : "player",
 		"effects":[
@@ -127,6 +134,7 @@
 		"desc" : "A bone with a burning core. Probably packs a punch",
 		"use" : "You hit the enemy with the bone! They burst into flame!",
 		"count" : 1,
+		"score" : 5,
 		"target" : "enemy",
 		"damage" : 5,
 		"weight":[7,7,7,7,7,7,7]
@@ -137,6 +145,7 @@
         "name" : "Apple of Desparation",
         "desc" : "Is your soul worth living just a little longer?",
         "count": 1,
+		"score" : 10,
         "use": "You consume the apple, a fell power blooming within you. But something feels lost...",
         "target": "player",
         "effects" : [

@@ -274,15 +274,17 @@ function doGameTurn() {
 			die();
 		}
 	}
-	console.log(currentEncounter.health);
-	if (currentEncounter.health <= 0){
+	if (currentEncounter){
+		if (currentEncounter.health <= 0){
 		addText("You defeated the " + currentEncounter.name + "!");
 		endEncounter();
 		
+		}
+		if (currentEncounter.hostile){
+			useItem(currentEncounter.inventory[Math.floor(random(0, currentEncounter.inventory.length))], "pla");
+		}
 	}
-	if (currentEncounter.hostile){
-		useItem(currentEncounter.inventory[Math.floor(random(0, currentEncounter.inventory.length))], "pla");
-	}
+	
 }
 
 function effectUpdate(target) {
@@ -356,6 +358,7 @@ function getItem(item){
 	} else {
 		pla.inventory.push(item);
 	}
+	pla.score += item.score;
 	renderInventory(pla.inventory);
 }
 
@@ -371,6 +374,9 @@ function loseItem(item, target){
 		}
 		selectedIndex = null;
 		renderInventory(target.inventory);
+		if (target === pla){
+			pla.score -= item.score;
+		}
 	} 
 }
 
@@ -442,6 +448,7 @@ function endEncounter(){
 	setOptions(baseOptions);
 	setHearts(0, 0);
 	setEncounterImage("areas/" + currentArea.name);
+	document.getElementById("encounter-name").textContent = "";
 }
 
 
@@ -604,7 +611,8 @@ function optionClick(event){
 				rest();
 			} else if (hit.textContent === "End Game") {
 				if(confirm("Ending will undo all progress.")){
-					pushChar(false, true);
+					die();
+					
 				}
 			}
 		}
@@ -712,7 +720,7 @@ var gameScreen = document.getElementById("game-screen");
 var charScreen = document.getElementById("character-creation");
 
 
-function fadeOutEffect(target) {
+function fadeOutEffect(target, go = null) {
     var fadeTarget = target;
     var fadeEffect = setInterval(function () {
         if (!fadeTarget.style.opacity) {
@@ -723,6 +731,9 @@ function fadeOutEffect(target) {
         } else {
             clearInterval(fadeEffect);
 			charScreen.classList.add("hidden");
+			if (go){
+				window.location.href = go;
+			}
         }
     }, 1);
 }
@@ -737,7 +748,9 @@ beginButton.addEventListener('click', function(){
 });
 
 function die(){
-	fadeOutEffect(gameScreen);
+	fadeOutEffect(gameScreen, "/gameOver");
+	
+	pushChar("Score: " + pla.score);
 }
 
 function pushChar(addGhost = true, addVictor = true, podiumText) {
@@ -784,11 +797,11 @@ function pushChar(addGhost = true, addVictor = true, podiumText) {
 		console.log("sending:", newVictor);
 		victorReq.send(JSON.stringify(newVictor));
 	}
-	window.location.href = "/gameOver"
+	
 }
 
 
-}
+
 
 function getEncs() {
 	var encReq = new XMLHttpRequest();

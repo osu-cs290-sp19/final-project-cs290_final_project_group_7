@@ -45,7 +45,7 @@
 				"text": "OUCH! That hurt!",
 				"onStart": {
 					"name": "becomeHostile"
-				}
+				},
 				"options": ["Oh, I'll just go now..."],
 				"optionRes": ["2"]
 			}
