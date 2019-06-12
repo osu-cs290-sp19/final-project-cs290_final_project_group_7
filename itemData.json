@@ -136,6 +136,9 @@
         "texture" : "desparate_apple",
         "name" : "Apple of Desparation",
         "desc" : "Is your soul worth living just a little longer?",
+        "count": 1,
+        "use": "You consume the apple, a fell power blooming within you. But something feels lost...",
+        "target": "player",
         "effects" : [
                 {
                         "type" : "regen",
@@ -145,6 +148,11 @@
                 {
                         "type" : "undying",
                         "duration" : 2
+                },
+                {
+                	"type": "sin",
+                	"duration": -1,
+                	"amount": 4
                 }
         ],
         "weight" : [0,0,0,0,0,0,1]

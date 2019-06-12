@@ -69,8 +69,10 @@ function randInt(min, max) {
 }
 
 var pla = {
+	name: "John Doe",
 	hp: 6,
 	maxHp: 6,
+	sin: 0,
 	inventory: [],
 	statuses: {},
 	textures: [1,1],
@@ -132,7 +134,7 @@ function getItemByName(name){
 var maxHealth = 82; //Screen limitation
 
 
-var baseOptions = ["Travel", "Scrounge", "Rest", "Use Item"];
+var baseOptions = ["Travel", "Scrounge", "Rest", "Use Item", "End Game"];
 var travelOptions = ["North", "East", "South", "West", "Back"];
 
 
@@ -600,7 +602,11 @@ function optionClick(event){
 			} else if (hit.textContent === "Rest"){
 				clearText();
 				rest();
-			} 
+			} else if (hit.textContent === "End Game") {
+				if(confirm("Ending will undo all progress.")){
+					pushChar(false, true);
+				}
+			}
 		}
 	}
 	
@@ -655,7 +661,6 @@ function startGame() {
 
 
 //-----------------------Char Creation-------------------------------\
-
 var TEXTURE_COUNT = 7;
 
 var hairL = document.getElementById("hair-button-l");
@@ -733,7 +738,70 @@ beginButton.addEventListener('click', function(){
 
 function die(){
 	fadeOutEffect(gameScreen);
+}
 
+function pushChar(addGhost = true, addVictor = true, podiumText) {
+	if (addGhost) {
+		var ghostReq = new XMLHttpRequest();
+		ghostReq.open('POST', '/app/ghost/make/' + currentArea.id);
+		var newGhost = {
+			"name": pla.name,
+			"hp": pla.maxHp,
+			"items": pla.inventory,
+			"aggression": pla.sin,
+			"hospitality": 100 - pla.sin,
+			"texture": [pla.textures[0], pla.textures[1]]
+		}
+		ghostReq.setRequestHeader('Content-Type', 'application/json');
+		ghostReq.addEventListener('load', function(event) {
+			if (event.target.status === 200) {
+				console.log("ghost saved!");
+			} else {
+				console.log(event.target);
+			}
+		});
+		console.log("sending:", newGhost);
+		ghostReq.send(JSON.stringify(newGhost));
+	}
+	if (addVictor) {
+		var victorReq = new XMLHttpRequest();
+		victorReq.open('POST', '/app/gameEnd');
+		if(!podiumText){podiumText = "Made it to " + currentArea.name;}
+		var newVictor =  {
+			"name": pla.name,
+			'image1': 'images/chars/cloaks/cloak' + String(pla.textures[1]) +'.png',
+			'image2': 'images/chars/heads/head' + String(pla.textures[0]) + '.png',
+			"text": "Made it to " + currentArea.name
+		};
+		victorReq.setRequestHeader('Content-Type', 'application/json');
+		victorReq.addEventListener('load', function(event) {
+			if (event.target.status === 200) {
+				console.log("victor saved!");
+			} else {
+				console.log(event.target);
+			}
+		});
+		console.log("sending:", newVictor);
+		victorReq.send(JSON.stringify(newVictor));
+	}
+	window.location.href = "/gameOver"
 }
 
 
+}
+
+function getEncs() {
+	var encReq = new XMLHttpRequest();
+	encReq.open('GET', "/app/enc/all");
+	encReq.addEventListener('load', function(event){
+		console.log(event.target.response);
+		if (event.target.status === 200){
+			encs = JSON.parse(event.target.response);
+			console.log(encs);
+		} else {
+			console.log(event.target);
+		}
+		getGhosts();
+	});
+	encReq.send();
+}
