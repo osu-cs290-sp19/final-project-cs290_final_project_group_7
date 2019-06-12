@@ -579,16 +579,17 @@ function startGame() {
 
 
 //-----------------------Char Creation-------------------------------\
+function charMakeStart() {
+	var TEXTURE_COUNT = 7;
 
-var TEXTURE_COUNT = 7;
+	var hairL = document.getElementById("hair-button-l");
+	var hairR = document.getElementById("hair-button-r");
 
-var hairL = document.getElementById("hair-button-l");
-var hairR = document.getElementById("hair-button-r");
+	var cloakL = document.getElementById("cloak-button-l");
+	var cloakR = document.getElementById("cloak-button-r");
 
-var cloakL = document.getElementById("cloak-button-l");
-var cloakR = document.getElementById("cloak-button-r");
-
-var charImage = document.getElementById("character-image");
+	var charImage = document.getElementById("character-image");
+}
 
 function updateCharRender(){
 	charImage.innerHTML = "<img src = \"images/chars/cloaks/cloak" + String(pla.textures[1]) + ".png\" class=\"layer1\"><img src = \"images/chars/heads/head" + String(pla.textures[0]) + ".png\" class=\"layer2\">";

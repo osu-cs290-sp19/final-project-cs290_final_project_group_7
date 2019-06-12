@@ -9,6 +9,9 @@ var bodyParser = require('body-parser');
 var app = express();
 var port = process.env.PORT || 3000;
 
+app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
+app.set('view engine', 'handlebars');
+
 var items;// = require('./itemData'); 
 var ghosts;// = require('./ghostData');
 var encs;// = require('./encData.json');
@@ -22,10 +25,6 @@ var mongoDBName = process.env.MONGO_DB_NAME || process.env.MONGO_USER || "cs290_
 var url = 'mongodb://' + mongoUser + ':' + mongoPassword + '@' + mongoHost + ':' + mongoPort + '/' + mongoDBName;
 console.log("=== URL:", url);
 
-/*
-app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
-app.set('view engine', 'handlebars');
-*/
 app.use(bodyParser.json());
 
 var db;
@@ -144,7 +143,26 @@ function makeNewGhost(req, res, next) {
 	} else {
 		res.status(400).send("Ghost could not be made, likely missing fields.");
 	}
-} 
+}
+
+function saveDeadChar(req, res, next) {
+	var body = req.body;
+	if (body.name && body.image1 && body.image2 && body.text){
+		var newDead =  {
+			"name": body.name,
+			"image1": body.image1,
+			"image2": body.image2,
+			"text": body.text
+		};
+		db.collection('deathBoard').find({}).toArray(function(err, temp){
+			assert.equal(err, null);
+			var newArr = temp.slice(0, 2);
+			newArr.unShift(newDead);
+			db.collection('deathBoard').deleteMany({});
+			db.collection('deathBoard').insertMany(newArr);
+		});
+	}
+}
 
 function randInt(min, max) {
 	min = Math.ceil(min);
@@ -251,10 +269,25 @@ function encSync() {
 	});
 }
 
-app.get('*', function(res, req,next) {
+app.get('*', function(req, res, next) {
 	console.log("got a request!");
 	console.log(req.body, req.params);
 	next();
+});
+
+app.get('/', function(req, res, next) {
+	res.status(200).render('game', {});
+});
+
+app.get('/gameOver', function(req, res, next){
+	db.collection('deathBoard').find({}).toArray(function(err, temp){
+		assert.equal(err, null);
+		var podium = temp.slice(0, 2);
+
+		res.status(200).render('gameOver', {
+			'victors': podium
+		});
+	});
 });
 
 app.get('/app/ghost/:area', getGhost);
@@ -266,10 +299,12 @@ app.get('/app/enc/:area', getEnc);
 
 app.post('/app/ghost/make/:area', makeNewGhost);
 
+app.post('/app/gameEnd/', saveDeadChar);
+
 app.use(express.static('public'));
 
 
 app.get('*', function(req,res) {
 	console.log("got a bad request here." , req.url);
-	res.status(404).send("whoops");
+	res.status(404).render("404");
 });

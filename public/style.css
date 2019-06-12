@@ -1,11 +1,13 @@
 body{
 	background-color: #550000;
 	padding: 0px;
+	margin:0;
 }
 img{
 	height: 32px;
 	width: 32px;
 }
+
 #game-screen{
 	
 	background-color: gray;
@@ -19,7 +21,7 @@ img{
 #screen-header{
 	text-align: center;
 	color: #FF2222;
-	background-color: #111111
+	background-color: #111111;
 }
 
 #encounter-name{
@@ -336,4 +338,23 @@ input{
 	border: 2px solid black;
 }
 
-.
+#warning{
+	background-color: grey;
+	font-size: 3em;
+	border: 5px solid black;
+	width: fill;
+	float: center;
+	text-align: center;
+	position: relative;
+	padding: 10px;
+}
+
+#warning a:link {
+	text-decoration: none;
+	color: red;
+}
+
+#warning a:visited {
+	text-decoration: none;
+	color: #550000;
+}
