@@ -1,15 +1,21 @@
 [
 	{
 		"name": "yellow imp",
-		"items": [],
+		"inventory": [],
 		"texture" : "yellow_imp",
 		"health": 10,
+		"maxHealth" : 10,
 		"areaAvail": [0,1,2,3,4,5],
+		"hostile":0,
+		"onDamage": {
+			"name" : "setPage",
+			"args" : ["4"]
+		},
 		"social": {
 			"0": {
 				"text": "HELLO THERE!",
 
-				"options": ["Buy foul potion for 3 obals", "2"],
+				"options": ["Buy foul potion for 3 obols", "Bye!"],
 				"optionRes": ["1", "2"]
 			},
 			"1": {
@@ -17,7 +23,7 @@
 				"options": ["I'll take another", "Bye!"],
 				"onStart": {
 				    "name" : "itemCheck",
-				    "args" : ["obol", 3, {"name":"gainItem", "args" : ["foul potion", 1]}, {"name":"setPage", "args" : ["3"]}]
+				    "args" : ["Obol", 3, {"name":"gainItem", "args" : ["foul potion", 1]}, {"name":"setPage", "args" : ["3"]}]
 				},
 				"optionRes": ["0", "2"]
 			},
@@ -26,7 +32,7 @@
 				"onStart": {
 				    "name" : "endEncounter"
 				},
-				"options": ["0", "1"],
+				"options": ["Nvm, I want some!", "non"],
 				"optionRes": ["0", "1"]
 			},
 
@@ -34,14 +40,24 @@
 				"text": "HEY!  You don't have enough obols!",
 				"options": ["oh"],
 				"optionRes": ["0"]
+			},
+			"4": {
+				"text": "OUCH! That hurt!",
+				"onStart": {
+					"name": "becomeHostile"
+				}
+				"options": ["Oh, I'll just go now..."],
+				"optionRes": ["2"]
 			}
 		}
 	},
 	{
 		"name":"fountain",
-		"items": [],
+		"inventory": [],
 		"texture" : "fountain",
 		"health": 10,
+		"maxHealth" : 10,
+		"hostile":0,
 		"areaAvail": [0],
 		"social": {
 			"0": {
@@ -80,9 +96,11 @@
 	},
 	{
 		"name":"phoenix",
-		"items": [],
+		"inventory": [],
 		"texture" : "phoenix",
 		"health": 15,
+		"maxHealth" : 15,
+		"hostile":1,
 		"areaAvail": [6],
 		"social": {
 			"0": {

@@ -74,7 +74,9 @@ var pla = {
 	inventory: [],
 	statuses: {},
 	textures: [1,1],
-	pos: [5, 5]
+	pos: [5, 5],
+	name: "",
+	score: 0
 };
 
 var areas = {
@@ -219,36 +221,65 @@ var itemBox = document.getElementById("inventory");
 var traveling = false;
 
 function useItem(item, target) {
-	if (item.target == "enemy"){
-		
-	} else if (item.target == "player"){
-		if (item.dmg && pla.hp) {
-			pla.hp -= item.dmg;
+
+	if (target === "enemy"){
+		useItem(item, currentEncounter);
+	}else if (target === "pla"){
+		useItem(item, pla);
+	} else {
+		addText(item.use);
+		if (target.health && item.damage){
+			target.health -= item.damage;
+			if (target === pla){
+				setHearts(1, target.health);
+			} else {
+				setHearts(0, target.health);
+				if (target.onDamage && !target.dam){
+					target.dam = 1;
+					runOnPage(target.onDamage);
+				}
+			}
+			
 		}
-		if (item.regen && pla.statuses) {
-			pla.statuses.regenSources.push(item.regen);
+			
+		if (target === pla){
+			loseItem(item, currentEncounter);
+		} else {
+			loseItem(item, pla);
 		}
-	} else if (item.target == "all"){
-		
-		
 	}
+	deselectItems();
 	
 }
 
 function rest(){
 	pla.hp += pla.maxHp * 0.2;
 	addText("You take a brief rest...");
+	if (pla.hp > pla.maxHp) pla.hp = pla.maxHp;
+	setHearts(1, pla.hp);
+	
 	
 }
 
 function doGameTurn() {
 	effectUpdate(pla);
+	//effectUpdate(currentEncounter);
 	if (pla.hp <= 0) {
 		if (pla.statuses.undying == true) {
 			pla.hp = 0;
 		} else {
 			/*kill the target*/
+			die();
 		}
+	}
+	console.log(currentEncounter.health);
+	if (currentEncounter.health <= 0){
+		addText("You defeated the " + currentEncounter.name + "!");
+		endEncounter();
+		
+	}
+	if (currentEncounter.hostile){
+		useItem(currentEncounter.inventory[Math.floor(random(0, currentEncounter.inventory.length))], "pla");
 	}
 }
 
@@ -302,15 +333,18 @@ function setEncounterImage(a){
 
 function renderInventory(inven){
 	var slots = document.getElementsByClassName("item");
+	var tips = document.getElementsByClassName("tooltip");
+	for (var i = 0; i < slots.length; i++){
+		slots[i].innerHTML = "";
+		tips[i].textContent = "";
+	}
 	for (var i = 0; i < inven.length; i++){
 		
 		slots[i].innerHTML = "<img src=\"images/"+ inven[i].texture + ".png\" class=\"it\">" + String(inven[i].count);
-	}
-	
-	var tips = document.getElementsByClassName("tooltip");
-	for (var i = 0; i < inven.length; i++){
 		tips[i].textContent = inven[i].desc;
 	}
+	
+	
 }
 
 function getItem(item){
@@ -323,15 +357,18 @@ function getItem(item){
 	renderInventory(pla.inventory);
 }
 
-function loseItem(item){
-	if (pla.inventory.includes(item)){
-		item = pla.inventory[pla.inventory.indexOf(item)];
+function loseItem(item, target){
+	if (target.inventory.includes(item)){
+		
 		if(item.count > 1){
 			item.count--;
-		} else {
-			pla.inventory.remove(item);
+		} else if (item.count === 1) {
+			target.inventory.splice(target.inventory.indexOf(item), 1);
+			
+
 		}
-		renderInventory(pla.inventory);
+		selectedIndex = null;
+		renderInventory(target.inventory);
 	} 
 }
 
@@ -351,17 +388,21 @@ function setOptions(options){
 	
 	//add new
 	var op = "";
+	
 	for (ops in options){
 
 		 op += "<div class=\"option\">" + options[ops] + "</div>";
 		
+	}
+	if (!options.includes("Use Item")){
+		op += "<div class=\"option\">" + "Use Item" + "</div>";
 	}
 	reOps.innerHTML = op;
 }
 
 function hasItem(item){
 	for (var i =0; i < pla.inventory.length; i++){
-		
+		console.log(pla.inventory[i].name)
 		if (pla.inventory[i].name === item){
 			return i;
 		}
@@ -369,13 +410,47 @@ function hasItem(item){
 	return -1;
 }
 
+function startEncounter(){
+	var encGot;
+	var potentialEncs = [];
+
+	for (var i in encs) {
+		if (encs[i].areaAvail.includes(currentArea.id)){
+			potentialEncs.push(encs[i]);
+		}
+	}
+
+	if (potentialEncs.length > 0) encGot = potentialEncs[Math.floor(random(0, potentialEncs.length - 1))];
+	currentEncounter = encGot;
+	currentPage = 0;
+
+	console.log(currentEncounter)
+	setEncounterImage(currentEncounter.texture);
+	currentEncounter.health = currentEncounter.maxHealth;
+	setHearts(0, currentEncounter.health);
+	setOptions(currentEncounter.social[currentPage].options);
+	addText(currentEncounter.social[currentPage].text);
+	document.getElementById("encounter-name").textContent = currentEncounter.name;
+	currentEncounter.dam = 0;
+}
+
+function endEncounter(){
+	if (currentEncounter.onEnd) runOnPage(currentEncounter.onEnd);
+	currentEncounter = null;
+	setOptions(baseOptions);
+	setHearts(0, 0);
+	setEncounterImage("areas/" + currentArea.name);
+}
+
+
 function runOnPage(command){
+	
 	if (command.name === "damagePlayer"){
 		pla.hp -= command.args[0]
 	}
 	if (command.name === "itemCheck"){
 		var idx = hasItem(command.args[0])
-		
+		console.log(idx);
 		if (idx >= 0 && pla.inventory[idx].count >= command.args[1]){
 			
 			command = command.args[2];
@@ -383,12 +458,13 @@ function runOnPage(command){
 			command = command.args[3];
 		}
 	}
+	
 	if (command.name === "getItem"){
 		getItem(getItemByName(command.args[0]));
 	}
 	if (command.name === "setPage"){
 		currentPage = command.args[0];
-		return true;
+		
 	}
 	if (command.name === "endEncounter"){
 		endEncounter();
@@ -403,38 +479,16 @@ function runOnPage(command){
 			randInt -= command.chance[i];
 			if (randInt <= 0) {
 				currentPage = command.pages[i];
-				return true;
+				
 			}
 		}
 	}
-	return false;
-}
-
-function startEncounter(){
-	var encGot;
-	var potentialEncs = [];
-
-	for (var i in encs) {
-		if (encs[i].areaAvail[currentArea.id]) {
-			potentialEncs.push(encs[i]);
-		}
+	if (command.name === "becomeHostile"){
+		currentEncounter.hostile = 1;
 	}
-	if (potentialEncs.length > 0) encGot = encs[Math.floor(random(0, potentialEncs.length - 1))];
-	currentEncounter = encGot;
-	currentPage = 0;
 
-	
-	setEncounterImage(currentEncounter.texture);
-
-	setOptions(currentEncounter.social[currentPage].options);
 }
 
-function endEncounter(){
-	if (currentEncounter.onEnd) runOnPage(currentEncounter.onEnd);
-	currentEncounter = null;
-	setOptions(baseOptions);
-	setEncounterImage("areas/" + currentArea.name);
-}
 
 
 
@@ -471,25 +525,35 @@ function optionClick(event){
 			
 			var page = currentEncounter.social[currentPage];
 		
-			
-			
+			console.log(page);
+		
 			var choice = page.options.indexOf(hit.textContent);
+			
 			if (choice > -1){
 				//update page
 				currentPage = page.optionRes[choice];
 				//run on start
-				
-				doGameTurn();
-				//setText
 				clearText();
 				addText(currentEncounter.social[currentPage].text)
-				//set options
-				setOptions(currentEncounter.social[currentPage].options)
-				doGameTurn();
 				if (currentEncounter.social[currentPage].onStart) {
-					while (runOnPage(currentEncounter.social[currentPage].onStart));
+					runOnPage(currentEncounter.social[currentPage].onStart);
 				}
+				if (currentEncounter){
+					
+					//setText
+					clearText();
+					addText(currentEncounter.social[currentPage].text)
+					//set options
+					setOptions(currentEncounter.social[currentPage].options)
+					
+				}
+				
+				
+			} else if (hit.textContent === "Use Item"){
+				clearText();
+				useItem(selectedItem, selectedItem.target);
 			}
+			doGameTurn();
 			
 		} else if (traveling){
 			if (hit.textContent === "Back"){
@@ -525,7 +589,7 @@ function optionClick(event){
 		} else {
 			if (hit.textContent === "Use Item"){
 				clearText();
-				useItem(selectedItem)
+				useItem(selectedItem, selectedItem.target);
 			} else if (hit.textContent === "Travel"){
 				clearText();
 				traveling = true;
@@ -544,10 +608,22 @@ function optionClick(event){
 }
 
 var selectedItem = 0;
+
+function deselectItems(){
+	var items = document.getElementsByClassName("slot");
+	console.log("Deselect ITEMS");
+	for (var i = 0; i < items.length; i++){
+		
+		items[i].classList.remove("selected");
+		
+	}
+}
 function itemClick(event){
-	var items = document.getElementsByClassName("it");
+	
 	var hit = event.target;
 	selectedItem = null;
+	var items = document.getElementsByClassName("it");
+	deselectItems();
 	for (var i = 0; i < items.length; i++){
 		
 		items[i].parentNode.parentNode.classList.remove("selected");
@@ -631,8 +707,8 @@ var gameScreen = document.getElementById("game-screen");
 var charScreen = document.getElementById("character-creation");
 
 
-function fadeOutEffect() {
-    var fadeTarget = charScreen;
+function fadeOutEffect(target) {
+    var fadeTarget = target;
     var fadeEffect = setInterval(function () {
         if (!fadeTarget.style.opacity) {
             fadeTarget.style.opacity = 1;
@@ -650,10 +726,14 @@ function fadeOutEffect() {
 beginButton.addEventListener('click', function(){
 	
 	gameScreen.classList.remove("hidden");
-	
-	fadeOutEffect()
+	pla.name = document.getElementById("name-input").value;
+	addText("Welcome to hell, " + pla.name);
+	fadeOutEffect(charScreen);
 });
 
+function die(){
+	fadeOutEffect(gameScreen);
 
+}
 
 
