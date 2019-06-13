@@ -163,6 +163,16 @@ function saveDeadChar(req, res, next) {
 		db.collection('deathBoard').find({}).toArray(function(err, temp){
 			assert.equal(err, null);
 			var newArr = temp.slice(0, 2);
+
+			for (var i in newArr){
+				newArr[i] = {
+					"name": newArr[i].name,
+					"image1": newArr[i].image1,
+					"image2": newArr[i].image2,
+					"text": newArr[i].text
+				}
+			}
+
 			newArr.unshift(newDead);
 			db.collection('deathBoard').deleteMany({});
 			db.collection('deathBoard').insertMany(newArr);

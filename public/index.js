@@ -226,7 +226,6 @@ var itemBox = document.getElementById("inventory");
 var traveling = false;
 
 function useItem(item, target) {
-
 	if (target === "enemy"){
 		useItem(item, currentEncounter);
 		setMainText(item.use);
@@ -537,6 +536,9 @@ function scrounge(){
 var lastMove = "";
 var scrounged = 0;
 function optionClick(event){
+
+	if(pla.health <= 0) {return;}
+
 	var hit = event.target;
 	if (hit){
 		if (currentEncounter){
@@ -810,6 +812,7 @@ function pushChar(addGhost = true, addVictor = true, podiumText) {
 		var victorReq = new XMLHttpRequest();
 		victorReq.open('POST', '/app/gameEnd');
 		if(!podiumText){podiumText = "Made it to " + currentArea.name;}
+		if(!pla.name){pla.name = "No Name Given";}
 		var newVictor =  {
 			"name": pla.name,
 			'image1': 'images/chars/cloaks/cloak' + String(pla.textures[1]) +'.png',
@@ -827,8 +830,9 @@ function pushChar(addGhost = true, addVictor = true, podiumText) {
 		console.log("sending:", newVictor);
 		victorReq.send(JSON.stringify(newVictor));
 	}
-
-	window.location.href = "/gameOver";
+	setTimeout(function() {
+		window.location.href = "/gameOver";
+	}, 5000);
 	
 }
 
