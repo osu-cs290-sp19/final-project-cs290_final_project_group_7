@@ -2,7 +2,7 @@
 var items;
 var ghosts;
 var encs;
-
+var days = 1;
 function getEncs() {
 	var encReq = new XMLHttpRequest();
 	encReq.open('GET', "/app/enc/all");
@@ -70,7 +70,7 @@ function randInt(min, max) {
 
 var pla = {
 	name: "John Doe",
-	hp: 6,
+	health: 6,
 	maxHp: 6,
 	sin: 0,
 	inventory: [],
@@ -156,8 +156,8 @@ function genLine(enc){
 		m = random(0, 2);
 	}
 	
-	var bridgeX = Math.floor(random(0, 25));
-	var bridgeY = m*bridgeX + b;
+	var bridgeX = randInt(0, 25);
+	var bridgeY = Math.floor(m*bridgeX + b);
 	world[bridgeX+ "," + bridgeY] = "bridge";
 	
 	line += m + "*x " + b; 
@@ -166,22 +166,24 @@ function genLine(enc){
 
 function genWorld(defaul){
 	world = {};
-	world["default"] = defaul;
+	
 	genLine("chasm");
 	genLine("river");
 	var forest = "";
-	forest += Math.floor(random(5, 20)) + ",";
-	forest += Math.floor(random(5, 20)) + ",";
-	forest += Math.floor(random(3, 8));
+	forest += randInt(5, 20) + ",";
+	forest += randInt(5, 20) + ",";
+	forest += randInt(4, 8);
 	world[forest] = "forest";
 	var stairs = Math.floor(random(1, 24)) + "," + Math.floor(random(1, 24)) + "";
+	world["default"] = defaul;
 	
 	
 }
 
 function getEnc(){
 	var poses = Object.keys(world);
-	for (var i in poses){
+	console.log(poses);
+	for (var i = 0; i < poses.length; i++){
 		if (poses[i].includes("y")) { // line
 			var eq = poses[i].split(" "); //split equation
 			var m = eq[2].split("*")[0]; //get m
@@ -191,6 +193,7 @@ function getEnc(){
 			}
 		} else {
 			var s = poses[i].split(",");
+			console.log(s);
 			if (s.length === 3){
 				if (Math.sqrt(Math.pow(pla.pos[0] - s[0], 2) + Math.pow(pla.pos[1] - s[1], 2)) <= s[2]){ //circle
 					return world[poses[i]]
@@ -226,12 +229,16 @@ function useItem(item, target) {
 
 	if (target === "enemy"){
 		useItem(item, currentEncounter);
+		setMainText(item.use);
+		
 	}else if (target === "pla"){
 		useItem(item, pla);
+		setSubText(item.use);
 	} else {
-		addText(item.use);
+	
 		if (target.health && item.damage){
 			target.health -= item.damage;
+			console.log(target);
 			if (target === pla){
 				setHearts(1, target.health);
 			} else {
@@ -245,7 +252,7 @@ function useItem(item, target) {
 		}
 			
 		if (target === pla){
-			loseItem(item, currentEncounter);
+			
 		} else {
 			loseItem(item, pla);
 		}
@@ -255,10 +262,10 @@ function useItem(item, target) {
 }
 
 function rest(){
-	pla.hp += pla.maxHp * 0.2;
-	addText("You take a brief rest...");
-	if (pla.hp > pla.maxHp) pla.hp = pla.maxHp;
-	setHearts(1, pla.hp);
+	pla.health += pla.maxHp * 0.2;
+	setSubText("You take a brief rest...");
+	if (pla.health > pla.maxHp) pla.health = pla.maxHp;
+	setHearts(1, pla.health);
 	
 	
 }
@@ -266,17 +273,9 @@ function rest(){
 function doGameTurn() {
 	effectUpdate(pla);
 	//effectUpdate(currentEncounter);
-	if (pla.hp <= 0) {
-		if (pla.statuses.undying == true) {
-			pla.hp = 0;
-		} else {
-			/*kill the target*/
-			die();
-		}
-	}
 	if (currentEncounter){
 		if (currentEncounter.health <= 0){
-		addText("You defeated the " + currentEncounter.name + "!");
+		setMainText("You defeated the " + currentEncounter.name + "!");
 		endEncounter();
 		
 		}
@@ -284,16 +283,25 @@ function doGameTurn() {
 			useItem(currentEncounter.inventory[Math.floor(random(0, currentEncounter.inventory.length))], "pla");
 		}
 	}
+	if (pla.health <= 0) {
+		if (pla.statuses.undying == true) {
+			pla.health = 0;
+		} else {
+			/*kill the target*/
+			die();
+		}
+	}
+	
 	
 }
 
 function effectUpdate(target) {
 	for (effect in target.statuses) {
 		if(effect.type == "regen"){
-			target.hp += effect.amount;
+			target.health += effect.amount;
 		}
 		if(effect.type == "fire"){
-			target.hp -= effect.amount;
+			target.health -= effect.amount;
 		}
 		
 		effect.duration -= 1;
@@ -352,7 +360,7 @@ function renderInventory(inven){
 }
 
 function getItem(item){
-	addText("You found: " + item.name);
+	setSubText("You found: " + item.name);
 	if (pla.inventory.includes(item)){
 		pla.inventory[pla.inventory.indexOf(item)].count++;
 	} else {
@@ -380,14 +388,14 @@ function loseItem(item, target){
 	} 
 }
 
-function addText(text){
-	var textBox = document.getElementById("text-zone");
-	textBox.textContent += text + "\n";
+function setMainText(text){
+	var textBox = document.getElementById("main-text");
+	textBox.textContent = text + "\n";
 }
 
-function clearText(){
-	var textBox = document.getElementById("text-zone");
-	textBox.textContent = "";
+function setSubText(text){
+	var textBox = document.getElementById("sub-text");
+	textBox.textContent = text + "\n";
 }
 
 function setOptions(options){
@@ -428,16 +436,16 @@ function startEncounter(){
 		}
 	}
 
-	if (potentialEncs.length > 0) encGot = potentialEncs[Math.floor(random(0, potentialEncs.length - 1))];
+	if (potentialEncs.length > 0) encGot = potentialEncs[randInt(0, potentialEncs.length)];
 	currentEncounter = encGot;
 	currentPage = 0;
 
-	console.log(currentEncounter)
+	console.log(potentialEncs);
 	setEncounterImage(currentEncounter.texture);
 	currentEncounter.health = currentEncounter.maxHealth;
 	setHearts(0, currentEncounter.health);
 	setOptions(currentEncounter.social[currentPage].options);
-	addText(currentEncounter.social[currentPage].text);
+	setMainText(currentEncounter.social[currentPage].text);
 	document.getElementById("encounter-name").textContent = currentEncounter.name;
 	currentEncounter.dam = 0;
 }
@@ -455,7 +463,7 @@ function endEncounter(){
 function runOnPage(command){
 	
 	if (command.name === "damagePlayer"){
-		pla.hp -= command.args[0]
+		pla.health -= command.args[0]
 	}
 	if (command.name === "itemCheck"){
 		var idx = hasItem(command.args[0])
@@ -479,14 +487,14 @@ function runOnPage(command){
 		endEncounter();
 	}
 	if (command.name === "randomPage") {
-		var randInt = 0;
+		var rand = 0;
 		for (var i in command.chance) {
-			randInt += command.chance[i];
+			rand += command.chance[i];
 		}
-		randInt = randInt(0, randInt - 1);
+		rand = randInt(0, rand - 1);
 		for (var i in command.chance) {
-			randInt -= command.chance[i];
-			if (randInt <= 0) {
+			rand-= command.chance[i];
+			if (rand <= 0) {
 				currentPage = command.pages[i];
 				
 			}
@@ -527,6 +535,7 @@ function scrounge(){
 
 
 var lastMove = "";
+var scrounged = 0;
 function optionClick(event){
 	var hit = event.target;
 	if (hit){
@@ -540,18 +549,23 @@ function optionClick(event){
 			
 			if (choice > -1){
 				//update page
+				var lastPage = currentPage;
 				currentPage = page.optionRes[choice];
 				//run on start
-				clearText();
-				addText(currentEncounter.social[currentPage].text)
 				if (currentEncounter.social[currentPage].onStart) {
 					runOnPage(currentEncounter.social[currentPage].onStart);
 				}
+				
+				setMainText(currentEncounter.social[currentPage].text)
+				setSubText("");
+				if (lastPage != currentPage) runOnPage(currentEncounter.social[currentPage].onStart);
+				
 				if (currentEncounter){
 					
 					//setText
-					clearText();
-					addText(currentEncounter.social[currentPage].text)
+				
+					setMainText(currentEncounter.social[currentPage].text)
+					
 					//set options
 					setOptions(currentEncounter.social[currentPage].options)
 					
@@ -559,7 +573,7 @@ function optionClick(event){
 				
 				
 			} else if (hit.textContent === "Use Item"){
-				clearText();
+				
 				useItem(selectedItem, selectedItem.target);
 			}
 			doGameTurn();
@@ -571,24 +585,32 @@ function optionClick(event){
 				
 			} else if (hit.textContent === "North"){
 				pla.pos[1]++;
-				addText("You travel north...");
+				setMainText("You travel north...");
+				setSubText("");
 				currentArea = areas[getEnc()];
 				lastMove = hit.textContent;
+				scrounged = 0;
 			} else if (hit.textContent === "East"){
 				pla.pos[0]++;
-				addText("You travel east...");
+				setMainText("You travel east...");
+				setSubText("");
 				currentArea = areas[getEnc()];
 				lastMove = hit.textContent;
+				scrounged = 0;
 			} else if (hit.textContent === "South"){
 				pla.pos[1]--;
-				addText("You travel south...");
+				setMainText("You travel south...");
+				setSubText("");
 				currentArea = areas[getEnc()];
 				lastMove = hit.textContent;
+				scrounged = 0;
 			} else if (hit.textContent === "West"){
 				pla.pos[1]--;
-				addText("You travel west...");
+				setMainText("You travel west...");
+				setSubText("");
 				currentArea = areas[getEnc()];
 				lastMove = hit.textContent;
+				scrounged = 0;
 			} 
 			traveling = false;
 			setOptions(baseOptions);
@@ -597,17 +619,23 @@ function optionClick(event){
 			
 		} else {
 			if (hit.textContent === "Use Item"){
-				clearText();
+				
 				useItem(selectedItem, selectedItem.target);
 			} else if (hit.textContent === "Travel"){
-				clearText();
+			
 				traveling = true;
 				setOptions(travelOptions);
 			} else if (hit.textContent === "Scrounge"){
-				clearText();
-				scrounge();
+				if (!scrounged){
+					
+					scrounge();
+					scrounged = 1;
+				} else {
+					setSubText("You've already scrounged this area.");
+				}
+
 			} else if (hit.textContent === "Rest"){
-				clearText();
+			
 				rest();
 			} else if (hit.textContent === "End Game") {
 				if(confirm("Ending will undo all progress.")){
@@ -625,7 +653,7 @@ var selectedItem = 0;
 
 function deselectItems(){
 	var items = document.getElementsByClassName("slot");
-	console.log("Deselect ITEMS");
+	
 	for (var i = 0; i < items.length; i++){
 		
 		items[i].classList.remove("selected");
@@ -660,7 +688,7 @@ function startGame() {
 
 	setOptions(baseOptions);
 
-	setHearts(1, pla.hp);	
+	setHearts(1, pla.health);	
 	genWorld("crag");
 	currentArea = areas[getEnc()];
 	setEncounterImage(currentArea.texture);
@@ -740,14 +768,19 @@ beginButton.addEventListener('click', function(){
 	
 	gameScreen.classList.remove("hidden");
 	pla.name = document.getElementById("name-input").value;
-	addText("Welcome to hell, " + pla.name);
-	fadeOutEffect(charScreen);
+	if (pla.name){
+		setMainText("Welcome to hell, " + pla.name);
+		fadeOutEffect(charScreen);
+	} else {
+		alert("Please enter a name.");
+	}
+	
 });
 
 function die(){
 	fadeOutEffect(gameScreen);
 	
-	pushChar(true, true, "Score: " + pla.score);
+	pushChar(true, true, "Score: " + (pla.score * days));
 }
 
 function pushChar(addGhost = true, addVictor = true, podiumText) {
@@ -781,7 +814,7 @@ function pushChar(addGhost = true, addVictor = true, podiumText) {
 			"name": pla.name,
 			'image1': 'images/chars/cloaks/cloak' + String(pla.textures[1]) +'.png',
 			'image2': 'images/chars/heads/head' + String(pla.textures[0]) + '.png',
-			"text": "Made it to " + currentArea.name
+			"text": podiumText
 		};
 		victorReq.setRequestHeader('Content-Type', 'application/json');
 		victorReq.addEventListener('load', function(event) {

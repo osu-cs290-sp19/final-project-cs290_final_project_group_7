@@ -13,7 +13,7 @@
 		},
 		"social": {
 			"0": {
-				"text": "HELLO THERE!",
+				"text": "A yellow figure approches you. 'HELLO THERE!'",
 
 				"options": ["Buy foul potion for 3 obols", "Bye!"],
 				"optionRes": ["1", "2"]
@@ -23,7 +23,7 @@
 				"options": ["I'll take another", "Bye!"],
 				"onStart": {
 				    "name" : "itemCheck",
-				    "args" : ["Obol", 3, {"name":"gainItem", "args" : ["foul potion", 1]}, {"name":"setPage", "args" : ["3"]}]
+				    "args" : ["Obol", 3, {"name":"getItem", "args" : ["foul potion", 1]}, {"name":"setPage", "args" : ["3"]}]
 				},
 				"optionRes": ["0", "2"]
 			},
@@ -95,8 +95,16 @@
 		}
 	},
 	{
-		"name":"phoenix",
-		"inventory": [],
+		"name":"Phoenix",
+		"inventory": [
+			{
+			"use" : "The phoenix blows a gout of flame at you!",
+			"damage": 5,
+			"target" : "pla",
+			"count" : -1
+			}
+			
+		],
 		"texture" : "phoenix",
 		"health": 15,
 		"maxHealth" : 15,
@@ -106,13 +114,15 @@
 			"0": {
 				"text": "A flaming bird rises before you!",
 
-				"options": ["A CHALLENGER!", "RUN!", "Hold. Very. Still."],
-				"optionRes": ["1", "2", "1"]
+				"options": ["Run!", "Hold. Very. Still."],
+				"optionRes": ["2", "1"]
 			},
 			"1": {
 				"text": "Upon noticing you, the Phoenix cries its challenge",
 				"onStart": {
-					"status": "combat"
+					"name": "randomPage",
+					"pages": ["3", "0"],
+					"chance": [50, 50]
 				},
 				"options": ["Let's do this!"],
 				"optionRes": ["0"]
@@ -120,7 +130,7 @@
 			"2": {
 				"onStart": {
 					"name": "randomPage",
-					"pages": ["1", "3"],
+					"pages": ["0", "3"],
 					"chance": [80, 20]
 				},
 				"options": ["Let's do this!"],
@@ -134,6 +144,62 @@
 				"options": ["Next"],
 				"optionRes": ["0"]
 			}
+		}
+	},
+	{
+		"name": "Black Imp",
+		"inventory": [
+			{
+				"use" : "The Imp bites you!",
+				"damage" : 3,
+				"count" : -1,
+				"target" : "pla"
+			},
+			{
+				"use" : "The Imp misses you narrowly!",
+				"damage" : 0,
+				"count" : -1,
+				"target" : "pla"
+			}
+		],
+		"texture" : "black_imp",
+		"health": 10,
+		"maxHealth" : 10,
+		"areaAvail": [0,1,2,3,4,5],
+		"hostile":1,
+		"social": {
+			"0": {
+				"text": "A black figure approches you. 'SKRAWWWWWWWW!'",
+
+				"options": ["Run"],
+				"optionRes": ["1"]
+			},
+			"1": {
+				"text": "",
+				"options": ["Bye!"],
+				"onStart": {
+				    "name" : "randomPage",
+					"chance": [50, 50],
+				    "pages" : ["2", "3"]
+				},
+				"optionRes": ["0", "2"]
+			},
+			"2": {
+				"text": "It follows you",
+			
+				"options": ["Keep running!"],
+				"optionRes": ["1"]
+			},
+
+			"3": {
+				"text": "You manage to escape it.",
+				"onStart": {
+				    "name" : "endEncounter"
+				},
+				"options": ["1"],
+				"optionRes": ["0"]
+			}
+			
 		}
 	}
 ]
